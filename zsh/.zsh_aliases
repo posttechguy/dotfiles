@@ -1,0 +1,98 @@
+alias ealias='vim ~/.zsh_aliases'
+alias ebash='vim ~/.zshrc'
+alias rebash='source ~/.zshrc'
+alias please='sudo'
+alias hist='history'
+alias aliases='alias | grep $1'
+alias lg='lazygit'
+
+alias getkey='cat ~/.ssh/id_rsa.pub | xclip -sel clip'
+alias sshconfig='subl ~/.ssh/config'
+alias sshknown='subl ~/.ssh/known_hosts'
+alias hosts='please subl /etc/hosts'
+
+alias ll='eza -alg --colour=always --group-directories-first --git --classify --icons=always --time-style "+%Y-%m-%d %H:%M"'
+alias lt='ls -alt'
+alias pwd='pwd -P'
+alias rva='rsync -avPht'
+alias gx='gunzip'
+alias gz='gzip'
+
+# WWW
+#######################
+
+alias nginxconf='please subl /etc/nginx/conf.d'
+alias www='cd ~/Sites'
+alias blossom='cd /usr/share/nginx/html/blossom'
+alias td='cd ~/Sites/td'
+alias kingsley='cd /usr/share/nginx/html/kingsley'
+alias mdb='mysql -uroot -proot'
+
+function fixpermfunction {
+    find . -type f -exec chmod 644 {} \;
+    find . -type d -exec chmod 755 {} \;
+    find ./var -type d -exec chmod 777 {} \;
+    find ./media -type d -exec chmod 777 {} \;
+    chmod 777 ./app/etc
+    chmod 644 ./app/etc/config.xml
+    chmod 644 ./app/etc/local.xml
+}
+alias fixperm=fixpermfunction
+
+
+# GIT
+###############
+
+function syncmasterbranchfunction() {
+  # git stash;
+  exists=`git show-ref refs/heads/main`
+  if [ -n "$exists" ]; then
+    git reset --hard origin/main
+    git checkout main
+  else # else branch
+    exists=`git show-ref refs/heads/master`
+    if [ -n "$exists" ]; then
+      git reset --hard origin/master
+      git checkout master
+    else # else branch
+      git reset --hard origin/live
+      git checkout live
+    fi
+  fi
+  git pull
+}
+alias main=syncmasterbranchfunction
+alias gs='git status'
+alias staging='git checkout staging'
+alias production='git checkout production'
+alias uat='git checkout uat && git pull uat'
+alias gs='git status'
+alias gsg='git status | grep $1'
+alias gb='git branch'
+alias gbg='git branch | grep $1'
+alias gba='git branch -a'
+alias ga='git add '
+alias gu='git checkout -- '
+alias gcfd='git clean -f -d'
+alias gd='git diff --ignore-space-at-eol -b -w '
+alias gl="git olog"
+alias gr='git reset '
+
+function cleangitfunction() {
+  find . -name "*.orig" -exec rm {} \;
+  find . -name "*.rej" -exec rm {} \;
+}
+alias cleangit=cleangitfunction
+
+# Laravel
+###################
+alias lush='php artisan '
+alias valeterror='tail -f ~/.config/valet/Log/nginx-error.log'
+
+function routelistfunction {
+  php artisan route:list | grep -E '\\$1|-|Action'
+}
+alias routelist=routelistfunction
+
+
+alias dumps='~/Dumps && ll'
