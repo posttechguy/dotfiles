@@ -1,0 +1,139 @@
+#!/bin/zsh
+
+ticket="SUPPORTDESK-${1}";
+clients=`echo "accce actpol afp ccv dgs doghouse dpn dtwd esc gosnells just laundy lotto mcc missing nba nhpo pfd polnews prov revise rfm sbdc solotel think vcat vdwc wnrm scv" | tr ' ' '\n'`;
+comments=`echo "triage init ac estimate qa release comms district confluence sync" | tr ' ' '\n'`;
+
+# Function to handle user input
+get_triage() {
+
+    declare -A triage_clients
+
+    triage_clients['accce']='SUPPORTDESK-5912'
+    triage_clients['actpol']='SUPPORTDESK-5930'
+    triage_clients['afp']='SUPPORTDESK-5365'
+    triage_clients['ccv']='SUPPORTDESK-5536'
+    triage_clients['dgs']='SUPPORTDESK-5480'
+    triage_clients['doghouse']='SUPPORTDESK-5511'
+    triage_clients['dpn']='SUPPORTDESK-5888'
+    triage_clients['dtwd']='SUPPORTDESK-5882'
+    triage_clients['esc']='SUPPORTDESK-5894'
+    triage_clients['gosnells']='SUPPORTDESK-5485'
+    triage_clients['imp']='SUPPORTDESK-5876'
+    triage_clients['just']='SUPPORTDESK-5900'
+    triage_clients['laundy']='SUPPORTDESK-5395'
+    triage_clients['lotto']='SUPPORTDESK-5858'
+    triage_clients['mcc']='SUPPORTDESK-5234'
+    triage_clients['mhfa']='SUPPORTDESK-5906'
+    triage_clients['missing']='SUPPORTDESK-5924'
+    triage_clients['nba']='SUPPORTDESK-5542'
+    triage_clients['nhpo']='SUPPORTDESK-5547'
+    triage_clients['pfd']='SUPPORTDESK-5491'
+    triage_clients['polnews']='SUPPORTDESK-5918'
+    triage_clients['prov']='SUPPORTDESK-5496'
+    triage_clients['revise']='SUPPORTDESK-5864'
+    triage_clients['rfm']='SUPPORTDESK-5936'
+    triage_clients['sbdc']='SUPPORTDESK-5531'
+    triage_clients['solotel']='SUPPORTDESK-5573'
+    triage_clients['think']='SUPPORTDESK-5942'
+    triage_clients['vcat']='SUPPORTDESK-5506'
+    triage_clients['vdwc']='SUPPORTDESK-5578'
+    triage_clients['wnrm']='SUPPORTDESK-5870'
+    triage_clients['scv']='SUPPORTDESK-5501'
+
+    echo $triage_clients['$1'];
+}
+
+# Function to handle user input
+handle_selection() {
+    t="$1"
+    q="$2"
+    c="$3"
+    tr="$4"
+    nowdatetime=$(date +"%d-%b-%Y %H:%M") # 10/31/2019
+
+    case $q in
+        triage)
+            comment="${tr},${nowdatetime},0.25,Triage ${t}|Communication with team/client"
+            ;;
+        sync)
+            comment="${tr},${nowdatetime},0.25,Triage ${tr}|Sync DB/files|Communication with team"
+            ;;
+        confluence)
+            comment="${t},${nowdatetime},0.25,Triage ${tr}|Confluence updates"
+            ;;
+        district)
+            comment="DISTCORE-1567${t},${nowdatetime},0.25,QA|${t}|Communication with team"
+            ;;
+        comms)
+            comment="${tr},${nowdatetime},0.25,Triage ${t}|Communication with client"
+            ;;
+        release)
+            comment="${t},${nowdatetime},0.25,Release notes|Deploy to production|Smoke testing|Communication with client"
+            ;;
+        qa)
+            comment="${t},${nowdatetime},0.25,QA|Communication with team"
+            ;;
+        estimate)
+            comment="${tr},${nowdatetime},0.25,Triage ${t}|Estimate|Communication with client"
+            ;;
+        ac)
+            comment="${tr},${nowdatetime},0.25,Triage ${t}|Acceptance criteria|Communication with team"
+            ;;
+        init)
+            comment="${tr},${nowdatetime},0.25,Triage ${t}|Initial response|Communication with team/client"
+            ;;
+    esac
+
+    echo "${comment}";
+}
+
+function get_logfile() {
+    fd=$(date +%Y-%m-%d); # 2019-06-28
+    md=$(date +%m-%B);    # 06-June
+    yd=$(date +%Y);       # 2019
+    history_root="/Users/${USER}/Documents/History";
+    templatefile="${history_root}/template.log";
+    logfile="${history_root}/${yd}/${md}/${fd}.md";
+
+    if [ ! -d "${history_root}/${yd}/${md}" ]; then
+        mkdir -p "${history_root}/${yd}/${md}";
+    fi
+
+    if [ ! -f "${logfile}" ]; then
+        touch "${logfile}";
+        chmod 777 "${logfile}";
+    fi
+
+    echo "${logfile}"
+}
+
+client=`printf "${clients}" | fzf`
+
+if printf $clients | ggrep -qs $client; then
+ # all good
+else
+    echo "Failed to get a client";
+    exit
+fi
+
+comment_type=`printf "${comments}" | fzf`
+if printf $comments | ggrep -qs $comment_type; then
+ # all good
+else
+    echo "Failed to get a ticket type";
+    exit
+fi
+tt=$(get_triage "${client}")
+
+comment=$(handle_selection "$ticket" "$comment_type" "$client" "${tt}")
+logfile=$(get_logfile)
+echo "Go to file:///${logfile}";
+
+#exit
+
+echo -e "${comment}" >> "${logfile}"
+
+
+
+
