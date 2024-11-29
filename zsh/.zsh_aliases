@@ -1,82 +1,254 @@
-alias ealias='vim ~/.zsh_aliases'
-alias ebash='vim ~/.zshrc'
-alias rebash='source ~/.zshrc'
+# ZSH Aliases
+SITES_DIRECTORY="/Users/bevan/Sites"
+
+source ~/.zsh_lagoon
+
 alias please='sudo'
+alias screenshots='defaults write com.apple.screencapture location ~/Screenshots/'
+alias flushdns='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
+alias vi='nvim'
+alias ebash='nvim ~/.zsh_aliases'
+alias rebash='source ~/.zshrc '
+alias mbash='more ~/.zshrc'
+alias evim='nvim ~/.vimrc'
+alias python='python3'
+alias rsync='/usr/local/bin/rsync'
 alias hist='history'
 alias aliases='alias | grep $1'
-alias lg='lazygit'
+alias lnado='lando'
+alias dumps='/Users/bevan/Dumps && ll'
+alias CodeDir=' ~/Code && ll'
+alias Sites='~/Sites/ && ll'
+alias Devkits='~/Devkits/ && ll'
+alias clients='~/Documents/clients'
+alias sublpackages='subl /Users/bevan/Library/Application\ Support/Sublime\ Text\ 3/Packages/Paste\ Without\ NewLines'
+alias sshconfig='subl /Users/bevan/.ssh/config'
+alias sshknown='subl /Users/bevan/.ssh/known_hosts'
+alias hosts='subl /etc/hosts'
+alias dh='~/Documents/doghouse'
+alias phps='/Applications/PhpStorm.app/Contents/MacOS/phpstorm'
+alias asdasdasdasd='sed '1,$1d' $2 > $3'
+alias cl='while [ 1 ] ; do echo -en "$(date +%T)\r" ; sleep 1; done';
+alias webprint='cupsctl WebInterface=yes'
+alias phpstorm='open -na "PhpStorm.app"'
+alias rmddirs='rm -rf modules profiles sites themes'
+alias findd='find . -type d -name $1'
+alias eject='diskutil unmount  disk2s1'
+#alias lsup='cd ~/Code/doghouse-lagoon-scripts && git pull && ./project stop && ./project build && ./project start && ./project use'
 
-alias getkey='cat ~/.ssh/id_rsa.pub | xclip -sel clip'
-alias sshconfig='subl ~/.ssh/config'
-alias sshknown='subl ~/.ssh/known_hosts'
-alias hosts='please subl /etc/hosts'
+### Docker
+alias dcm='/usr/local/bin/docker-compose exec mariadb bash'
+alias dpst='/usr/local/bin/docker container ls --format "table {{.ID}}\t{{.Names}}\t{{.Ports}}" -a'
+alias dk="pkill -SIGHUP -f /Applications/Docker.app 'docker serve' "
+alias dup="open -a Docker"
+alias iscon='ahoy drush st | grep "Connected"'
+alias dcu='/usr/local/bin/docker-compose up'
+alias dcd='/usr/local/bin/docker-compose down'
+alias dcr='/usr/local/bin/docker-compose run'
+alias dce='/usr/local/bin/docker-compose exec'
+alias dcud='/usr/local/bin/docker-compose up -d'
+alias dcps='/usr/local/bin/docker-compose ps'
+alias dcl='/usr/local/bin/docker-compose logs'
+alias dps="/usr/local/bin/docker ps"
+alias dspr="/usr/local/bin/docker system prune --all --force --volumes"
+alias dpa="/usr/local/bin/docker ps -a"
+alias di="/usr/local/bin/docker images"
 
-alias ll='eza -alg --colour=always --group-directories-first --git --classify --icons=always --time-style "+%Y-%m-%d %H:%M"'
+alias top='bpytop'
+
+
+function lsupfunction() {
+    open -a Docker &
+    wait 180
+    cd ~/Code/doghouse-lagoon-scripts &&
+    git pull &&
+    ./project stop &&
+    ./project full-rebuild &&
+    ./project start &&
+    ./project use
+}
+alias lsup=lsupfunction
+
+function stupfunction() {
+    ./project stop;
+    pid=$(ps aux | grep "Applications\/Docker.app" | awk  '{print $2}');
+    kill -9 $pid;
+    return;
+}
+alias stup=stupfunction
+
+alias kjb='pkill -15 jetbrains-toolbox && /Applications/JetBrains\ Toolbox.app/Contents/MacOS/jetbrains-toolbox --minimize &'
+alias kps='ps aux | grep PhpStorm'
+
+alias mon='ssh bholman@monitoring-01.stack.host'
+
+source ~/.zsh_site_aliases.sh
+
+## Commands
+### Grep
+alias grep='grep --color=auto '
+alias ggrep='ggrep --color=auto '
+alias grn='ggrep -nr --color=auto '
+alias grni='ggrep -nri --color=auto '
+alias grl='ggrep -rl --color=auto "$1" *'
+alias fgrn='find . -type f -exec grep -nr "$1" {} \;'
+alias fgrni='find . -type f -exec grep -nri "$1" {} \;'
+alias grns='ggrep -nr --color=auto "$1" | ggrep scss'
+
+### Ahoy
+alias af='ahoy up'
+alias ad='ahoy down'
+alias aa='ahoy ant'
+alias ap='ahoy phing'
+alias abp='ahoy bash php'
+alias abm='ahoy bash mariadb'
+alias dss='/usr/local/bin/docker-sync start'
+alias dsd='/usr/local/bin/docker-sync stop'
+alias dex='/usr/local/bin/docker ps --filter "status=exited"'
+
+
+function dddbfunction() {
+
+  SEARCH_CONTAINER=`echo "$1"`
+
+  docker ps --filter "status=exited" | grep "$SEARCH_CONTAINER" | awk "{print \$1}" | xargs docker rm
+
+}
+
+alias dddb=dddbfunction
+
+### Lando
+alias lns='lando start'
+alias lna='lando poweroff'
+alias lnx='lando xdebug-on'
+alias lnz='lando xdebug-off'
+alias ldc='lando drush cr'
+alias ldu='lando drush uli'
+alias lpo='lando poweroff'
+
+alias lzd='lazydocker'
+
+alias nst='sudo netstat -nl -p tcp | grep $1'
+alias vdrush='./vendor/drush/drush/drush'
+
+alias findfileslike='find . -name "$1" -type f'
+alias deletefileslike='find . -name "$1" -type f -delete'
+alias rmDStore='find . -name ".DS_Store" -depth -exec rm {} \;'
+alias rmSnapshots='find . -name "*.sql.gz" -depth -exec rm {} \;'
+
+alias magentocache='rm -rf var/cache/*'
+alias exceptionlog='tail -f var/log/exception.log'
+alias systemlog='tail -f var/log/system.log'
+
+alias loadavg='sysctl -n vm.loadavg'
+alias ll='eza -alg --colour=always --group-directories-first --git'
+alias lll='eza -alg --colour=always --group-directories-first --git'
+alias lsd='eza -aldg --colour=always */'
 alias lt='ls -alt'
 alias pwd='pwd -P'
+alias vr='vagrant reload'
+alias vs='vagrant ssh'
 alias rva='rsync -avPht'
-alias gx='gunzip'
+function gxfunc() {
+  start=`date +%s`;
+  gunzip $1;
+  end=`date +%s`;
+  runtime=$((end-start));
+  echo "\nRuntime: $runtime seconds";
+}
+alias gx=gxfunc
+
+function gzfunc() {
+  start=`date +%s`;
+  gzip $1;
+  end=`date +%s`;
+  runtime=$((end-start));
+  echo "\nRuntime: $runtime seconds";
+}
+alias gz=gzfunc
+
+function reportingfunc() {
+  cd /Users/bevan/Documents/Reporting
+  find . -type f -exec sed -i -e "s/$1/$2/g" {} \;
+  rm *-e
+}
+alias rep=reportingfunc
+
 alias gz='gzip'
+alias untar='tar -xvf'
+alias untargz='tar -xzvf'
 
-# WWW
-#######################
-
-alias nginxconf='please subl /etc/nginx/conf.d'
-alias www='cd ~/Sites'
-alias blossom='cd /usr/share/nginx/html/blossom'
-alias td='cd ~/Sites/td'
-alias kingsley='cd /usr/share/nginx/html/kingsley'
-alias mdb='mysql -uroot -proot'
-
-function fixpermfunction {
-    find . -type f -exec chmod 644 {} \;
-    find . -type d -exec chmod 755 {} \;
-    find ./var -type d -exec chmod 777 {} \;
-    find ./media -type d -exec chmod 777 {} \;
-    chmod 777 ./app/etc
-    chmod 644 ./app/etc/config.xml
-    chmod 644 ./app/etc/local.xml
-}
-alias fixperm=fixpermfunction
-
-
-# GIT
-###############
-
-function syncmasterbranchfunction() {
-  # git stash;
-  exists=`git show-ref refs/heads/main`
-  if [ -n "$exists" ]; then
-    git reset --hard origin/main
-    git checkout main
-  else # else branch
-    exists=`git show-ref refs/heads/master`
-    if [ -n "$exists" ]; then
-      git reset --hard origin/master
-      git checkout master
-    else # else branch
-      git reset --hard origin/live
-      git checkout live
-    fi
-  fi
-  git pull
-}
-alias main=syncmasterbranchfunction
-alias gs='git status'
-alias staging='git checkout staging'
+alias staging='git fetch origin staging && git checkout staging && git reset --hard remotes/origin/staging && git pull origin staging'
 alias production='git checkout production'
-alias uat='git checkout uat && git pull uat'
+alias uat='git checkout uat && git pull origin uat'
 alias gs='git status'
-alias gsg='git status | grep $1'
 alias gb='git branch'
-alias gbg='git branch | grep $1'
 alias gba='git branch -a'
 alias ga='git add '
 alias gu='git checkout -- '
 alias gcfd='git clean -f -d'
 alias gd='git diff --ignore-space-at-eol -b -w '
-alias gl="git olog"
-alias gr='git reset '
+alias gti='git'
+alias gri='git rebase -i HEAD~2'
+alias lg='lazygit'
+alias grpo='git remote prune origin'
+
+alias hastwigtweak='find web/{modules/custom,themes} -name "*.twig" -exec grep -l drupal_ {} \; -exec grep drupal_ {} \;'
+
+function mvgxfunction() {
+
+  NAME=`echo "$1" | cut -d'.' -f1`
+  EXTENSION=`echo "$1" | cut -d'.' -f2`
+
+  mv $1 . && gunzip "$NAME.$EXTENSION"
+}
+alias mvgx=mvgxfunction
+
+function fastlypurgefunction() {
+
+  curl -XPURGE -H Fastly-Key:dexe00S891wAaHWXswgUdZchP2EpkRNA $1
+
+#  fastly purge --service-id=0VfjtEv26MEnPZwvF4qtZO --url=$1 --verbose
+
+}
+alias fp=fastlypurgefunction
+
+function fixpermfunction {
+    find . -type f -exec chmod 644 {} \;
+    find . -type d -exec chmod 755 {} \;
+}
+alias fixperm=fixpermfunction
+
+function syncmasterbranchfunction() {
+
+  # Cycle through branch names until one is found
+  for branch in "live" "master" "production" "main" "staging"; do
+    exists=`git show-ref refs/heads/$branch`
+
+    if [ -n "$exists" ]; then
+      BRANCHIMON=`git symbolic-ref --short -q HEAD`
+
+      if [ "$BRANCHIMON" != "$branch" ]; then
+        git fetch origin $branch
+        git checkout $branch
+      fi
+      if [ "$1" = "HEAD" ]; then
+        git reset --hard remotes/origin/$branch
+      fi
+      git pull origin $branch;
+      break;
+    fi
+  done
+}
+alias main=syncmasterbranchfunction
+
+function getbranchfunction() {
+  git fetch origin $1
+  git checkout $1
+  git reset --hard remotes/origin/$1
+  git pull origin $1;
+}
+alias getb=getbranchfunction
 
 function cleangitfunction() {
   find . -name "*.orig" -exec rm {} \;
@@ -84,15 +256,652 @@ function cleangitfunction() {
 }
 alias cleangit=cleangitfunction
 
-# Laravel
-###################
 alias lush='php artisan '
-alias valeterror='tail -f ~/.config/valet/Log/nginx-error.log'
+alias valeterror='tail -f /Users/bevan/.config/valet/Log/nginx-error.log'
+alias valetnginxconf='vim /usr/local/etc/nginx/nginx.conf'
+
+function llogfunction() {
+  dd=$(date -v -0d '+%d');
+  md=$(date -v -0d '+%m');
+  yd=$(date -v -0d '+%Y');
+
+  tail -f storage/logs/laravel-"$yd"-"$md"-"$dd".log
+}
+alias llog=llogfunction
 
 function routelistfunction {
   php artisan route:list | grep -E '\\$1|-|Action'
 }
 alias routelist=routelistfunction
 
+function washsqlfunction {
+    sed -i -e 's/https://www\.$1\.com\.au/http://www\.$1\.com\.au/g' /Users/bevan/dumps/$2
+    sed -i -e 's/https://$1\.com\.au/http://www\.$1\.com\.au/g' /Users/bevan/dumps/$2
+    sed -i -e 's/www\.$1\.com\.au/$1\.dhbox\.dev/g' /Users/bevan/dumps/$2
+    sed -i -e 's/$1\.com\.au/$1\.dhbox\.dev/g' /Users/bevan/dumps/$2
+}
+alias washsql=washsqlfunction
 
-alias dumps='~/Dumps && ll'
+function awskeysfunction() {
+    openssl genrsa 2048 >  ~/.ssh/$1.pem
+    sudo chmod 400  ~/.ssh/$1.pem
+}
+alias awskeys=awskeysfunction
+
+export PHP_IDE_CONFIG="serverName=test"
+export XDEBUG_CONFIG="remote_enable=1 remote_mode=req remote_port=9000 remote_host=127.0.0.1 remote_connect_back=0"
+
+#find . -type f -mtime +45 -name '*.sql' -execdir rm -- {} \;
+
+function rmallfilesolderthanfunction {
+find . -type f -mtime +$2 -name '$1' -execdir rm -- {} \;
+}
+alias rmallfilesolderthan=rmallfilesolderthanfunction
+
+alias googledict='subl /Users/bevan/Library/Spelling/LocalDictionary'
+
+#cp -R ../benara.old/media/ media/
+
+#if [ -f $(brew --prefix)/etc/bash_completion ]; then
+#. $(brew --prefix)/etc/bash_completion
+#fi
+
+alias nopasslogin='ssh-copy-id -i ~/.ssh/id_rsa.pub $1 $2'
+
+function mkcdirfunction ()
+{
+    mkdir -p -- "$1" &&
+      cd -P -- "$1"
+}
+alias mkcdir=mkcdirfunction
+
+
+
+function inittimefunction() {
+
+    dd=$(date -v -$1d +%d/%m/%Y); # 10/31/2019
+    fd=$(date -v -$1d +%Y-%m-%d); # 2019-06-28
+    md=$(date -v -$1d +%m-%B);    # 06-June
+    yd=$(date -v -$1d +%Y);       # 2019
+    history_root="/Users/bevan/Documents/History";
+    templatefile="$history_root/template.log";
+    logfile="$history_root/$yd/$md/$fd.md";
+
+    if [ ! -d "$history_root/$yd/$md" ]; then
+        mkdir -p "$history_root/$yd/$md";
+    fi
+
+    echo "file:///$logfile";
+    if [ ! -f "$logfile" ]; then
+        touch "$logfile";
+        chmod 777 "$logfile";
+    fi
+
+    cat "$templatefile" > "$logfile";
+}
+alias inittime=inittimefunction
+
+function gethistoryfunction() {
+    DAY_INTERVAL="$1d";
+echo $DAY_INTERVAL;
+echo "$(date -v -$DAY_INTERVAL +%A)"
+echo "$(date -v -$DAY_INTERVAL +%u)"
+
+    if [[ $(date -v -$DAY_INTERVAL +%A) -eq 'Sunday' ]]; then
+      DAY_INTERVAL="3d";
+    fi
+echo $DAY_INTERVAL;
+
+    # dd=$(date -v -$DAY_INTERVAL +%d/%m/%Y); # 10/31/2019
+    # fd=$(date -v -$DAY_INTERVAL +%Y-%m-%d); # 2019-06-28
+    # md=$(date -v -$DAY_INTERVAL +%m-%B);    # 06-June
+    # yd=$(date -v -$DAY_INTERVAL +%Y);       # 2019
+    # history_root="/Users/bevan/Documents/History";
+    # logfile="$history_root/$yd/$md/$fd.md";
+
+    # if [ ! -d "$history_root/$yd/$md" ]; then
+    #     mkdir -p "$history_root/$yd/$md";
+    # fi
+
+    # if [ ! -f "$logfile" ]; then
+    #     touch "$logfile";
+    #     chmod 777 "$logfile";
+    # fi
+
+    # echo $dd;
+    # echo $logfile;
+
+    # # history -E | grep "10/31/2017" >> /Users/bevan/Documents/History/2017/10-October/2017-10-31.log;
+    # history -E | sort -k3,3 -k2 | grep "$dd" >> "$logfile";
+}
+alias gethist=gethistoryfunction
+
+alias day='inittime 0'
+alias std='inittime 0 && gethist 1'
+alias etd='gethist 0'
+
+function ddifunction() {
+
+    for i in $(docker images -q)
+    do
+        docker history $i | grep -q $1 && echo $i
+    done | sort -u
+}
+alias ddi=ddifunction
+
+# Setting PATH for Python 3.7
+# The original version is saved in .bash_profile.pysave
+PATH="/Library/Frameworks/Python.framework/Versions/3.7/bin:${PATH}"
+export PATH
+
+# Setting PATH for Python 3.7
+# The original version is saved in .bash_profile.pysave
+PATH="/Library/Frameworks/Python.framework/Versions/3.7/bin:${PATH}"
+export PATH
+
+#[ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion || {
+    # if not found in /usr/local/etc, try the brew --prefix location
+  #  [ -f "$(brew --prefix)/etc/bash_completion.d/git-completion.bash" ] && \
+   #     . $(brew --prefix)/etc/bash_completion.d/git-completion.bash
+#}
+
+alias wifipassword='security find-generic-password -ga "Doghouse" |grep "password:"'
+
+# BEGIN SNIPPET: Platform.sh CLI configuration
+HOME=${HOME:-'/Users/bevan'}
+export PATH="$HOME/"'.platformsh/bin':"$PATH"
+if [ -f "$HOME/"'.platformsh/shell-config.rc' ]; then . "$HOME/"'.platformsh/shell-config.rc'; fi # END SNIPPET
+export PATH="/usr/local/opt/php/bin:$PATH"
+export PATH="/usr/local/opt/php/sbin:$PATH"
+
+function sphp72function() {
+    sphpstop
+    brew services start php@7.2
+    brew link php72
+    export PATH="/usr/local/opt/php@7.2/bin:$PATH"
+    export PATH="/usr/local/opt/php@7.2/sbin:$PATH"
+}
+alias sphp72=sphp72function
+
+function sphp73function() {
+    sphpstop
+    brew services start php@7.3
+    brew link php73
+    export PATH="/usr/local/opt/php@7.3/bin:$PATH"
+    export PATH="/usr/local/opt/php@7.3/sbin:$PATH"
+}
+alias sphp73=sphp72function
+
+alias mdb='mysql -uroot'
+
+function getlagoonenvironment() {
+
+  shortEnv="$1";
+  delimiter="$2";
+  lagoon="deploy${delimiter}lagoon";
+  project=;
+  environment="${lagoon}${delimiter}staging";
+
+  if [ "$shortEnv" = "p" ]
+  then
+    environment="${lagoon}${delimiter}production";
+  fi
+  if [ "$shortEnv" = "s" ]
+  then
+    environment="${lagoon}${delimiter}staging";
+  fi
+  if [ "$shortEnv" = "d" ]
+  then
+    environment="${lagoon}${delimiter}development";
+  fi
+
+  echo "$environment";
+}
+alias gle=getlagoonenvironment
+
+function lagoonsshfunction() {
+
+  lagoon_client=`printf "${lagoon_clients}" | fzf`
+  lagoon_env=`printf "${lagoon_envs}" | fzf`
+
+  environment=$(getlagoonenvironment "${lagoon_env}" "/")
+  display_env=$(getlagoonenvironment "${lagoon_env}" "-")
+
+  if [[ -n "${lagoon_projects['$lagoon_client']}" ]]; then
+    echo "Connecting to lagoon: ${lagoon_projects['$lagoon_client']}-${display_env}"
+    echo "lagoon ssh --project ${lagoon_projects['$lagoon_client']} --environment ${environment}"
+    lagoon ssh --project $lagoon_projects['$lagoon_client'] --environment $environment && return;
+  else
+    echo "Bah boouw"
+  fi
+}
+alias lssh=lagoonsshfunction
+
+
+function lagoonulifunction() {
+
+  uid="$3";
+  drush_command="drush uli"
+
+  environment=$(getlagoonenvironment "$2" "-")
+
+  if [[ -n "${lagoon_projects['$1']}" ]]; then
+    echo "Connecting to lagoon: ${lagoon_projects['$1']}-${environment}"
+    echo "lagoon ssh -p ${lagoon_projects['$1']} -e ${environment} -C $drush_command"
+
+    # if [ -n "$3" ]; then
+    #     drush_command="drush uli --uid=${uid}"
+    # fi
+    lagoon ssh -p $lagoon_projects['$1'] -e $environment -C $drush_command
+  else
+    echo "Bah boouw"
+  fi
+}
+alias luli=lagoonulifunction
+
+function lagoonstfunction() {
+
+  environment=$(getlagoonenvironment "$2" "-")
+
+  if [[ -n "${lagoon_projects['$1']}" ]]; then
+    echo "Connecting to lagoon: ${lagoon_projects['$1']}-${environment}"
+
+    lagoon ssh -p $lagoon_projects['$1'] -e $environment -C "drush status"
+  else
+    echo "Bah boouw"
+  fi
+}
+alias lst=lagoonstfunction
+
+
+
+
+function drushallfunction() {
+
+  # drushall user-create carla.jobson --mail='carla.jobson@twocircles.com' --password='overspend retrieval unwary confidant'
+  # drushall user-add-role 'administrator' --uid=<uid>
+
+  declare -a SITES=`find ./web/sites/. -mindepth 1 -maxdepth 1 -type d -exec basename {} \;`
+
+  # Run parsed in command
+  # ie, ./scripts/drush-all cr
+  # Would clear cache for all sites
+  for siteslug in ${SITES}; do
+
+    # Always skip Default as its an empty site
+    if [ $siteslug == "default" ]; then
+      echo "Skipping DEFAULT"
+      continue
+    fi
+
+    ./vendor/drush/drush/drush -l $siteslug $*
+  done
+}
+alias drushall=drushallfunction
+
+function awewhiterebuildfunction() {
+    ahoy stop
+    docker rm awe-white_mariadb_1
+    docker rm awe-white_cli_1
+    docker rm awe-white_php_1
+    docker rm awe-white_nginx_1
+    docker rm awe-white_test_1
+    ahoy refresh-db
+    echo "wait a bit..."
+    sleep 20
+    ahoy build
+    ahoy cim
+    echo "here is your super special login link..."
+    ahoy login
+}
+alias awe-whiterebuild=awewhiterebuildfunction
+
+function latroberebuildfunction() {
+    ahoy stop
+    docker login gitlab-registry-production.govcms.amazee.io
+    docker rm latrobe-vic_mariadb_1
+    docker rm latrobe-vic_cli_1
+    docker rm latrobe-vic_php_1
+    docker rm latrobe-vic_nginx_1
+    ahoy refresh-db
+    echo "wait a bit..."
+    sleep 20
+    ahoy build
+    ahoy cim
+    echo "here is your super special login link..."
+    ahoy login -- --uid=18
+}
+alias latroberebuild=latroberebuildfunction
+
+function sql-councilfunction() {
+    echo "Reset DB for Council...";
+    cd $SITES_DIRECTORY/district/whitelabel;
+    ahoy drush sql:drop;
+    ahoy drush sql:sync @self.council_uat_remote @self.council_local;
+    ahoy drush cr;
+    ahoy drush updb;
+    ahoy drush cim;
+    ahoy drush cr;
+    ahoy drush pmu config_devel;
+    cd $SITES_DIRECTORY/district/whitelabel;
+    echo "Done. Admin login:";
+    ahoy drush @self.council_local uli;
+}
+alias sql-council=sql-councilfunction
+
+
+#alias solotelsync='ahoy sync:db $1'
+#alias solotellogin='platform ssh'
+
+## compile
+
+function compilingfunction() {
+  start=`date +%s`
+
+  if [ "$1" = "dp" ]
+  then
+    dp && \
+    lando npm run build -- --theme=subthemes/experienceperth && \
+    lando drush cr;
+  fi
+  if [ "$1" = "district" ]
+  then
+    $2 && \
+    lando npm run build -- --theme=subthemes/$2 && \
+    lando drush cr;
+  fi
+  if [ "$1" = "solotel" ]
+  then
+    ahoy build:css && \
+    lando drush -l $2 cr;  # lando drush -l goros cr
+  fi
+  if [ "$1" = "vcat" ]
+  then
+    vcat && \
+    lando npm run build && \
+    lando drush cr;
+  fi
+
+  if [ "$1" = "sbdc" ]
+  then
+    lando npm run build -- --theme=subthemes/small_business --custom && \
+    lando drush cr;
+  fi
+  if [ "$1" = "afp--act-policing-news" ]
+  then
+    lando npm run build -- --theme=docroot/sites/all/themes/afp_theme --custom && \
+    lando drush cr;
+  fi
+
+  if [ "$1" = "mcc" ]
+  then
+    manningham && \
+    lando npm run build -- --theme=subthemes/manningham --custom && \
+    lando drush cr;
+  fi
+  if [ "$1" = "vdwc" ]
+  then
+   npm run build && \
+   ahoy drush cr;
+  fi
+
+  if [ "$1" = "nhpo" ]
+  then
+   cd ~/Sites/docker/govcms/nhpo/themes/custom/nhpo && \
+   npm install && \
+   npm run build && \
+   nhpo
+   ahoy drush cr;
+  fi
+
+  if [ "$1" = "laundy" ]
+  then
+    lando npm run build
+    lando drush -l $2 cr;
+  fi
+
+  if [ "$1" = "gosnells" ]
+  then
+    lando build
+    lando drush cr;
+  fi
+
+  end=`date +%s`
+
+  runtime=$((end-start))
+
+  echo "\nRuntime: $runtime seconds";
+}
+alias compile=compilingfunction
+
+function iminfunction() {
+  WHEREAMI=$(pwd | sed 's#.*/##')
+
+  if [ $WHEREAMI = "mhfa" ] || [ $WHEREAMI = "wheatbelt" ] || [ $WHEREAMI = "solotel" ]
+  then
+    lando start
+  fi
+  if [ $WHEREAMI = "nhpo" ]
+  then
+    pygmy up && ahoy up
+  fi
+}
+alias imin=iminfunction
+
+function imoutfunction() {
+  WHEREAMI=$(pwd | sed 's#.*/##')
+
+  if [ $WHEREAMI = "mhfa" ] || [ $WHEREAMI = "wheatbelt" ] || [ $WHEREAMI = "solotel" ]
+  then
+    lando poweroff
+    docker ps
+  fi
+  if [ $WHEREAMI = "nhpo" ]
+  then
+    ahoy stop && pygmy stop
+    docker ps
+  fi
+}
+alias imout=imoutfunction
+
+# dbimport
+function dbimportfunction() {
+  start=`date +%s`
+
+  if [ "$1" = "laundy" ]
+  then
+    lando db-import -h mariadb-$2 $3 && \
+    lando drush cr;
+  fi
+
+  if [ "$1" = "solotel" ]
+  then
+    lando db-import -l $2 $3 && \
+    lando drush cr;
+  fi
+
+  if [ "$1" = "mhfa" ]
+  then
+    lando db-import $2 && \
+    lando drush dis memcache -y
+    lando drush cc all;
+  fi
+
+  end=`date +%s`
+
+  runtime=$((end-start))
+
+  echo "\nRuntime: $runtime seconds";
+}
+alias dbimport=dbimportfunction
+
+function districtcompilefunction() {
+    $1 && lando npm run build -- --theme=subthemes/$1;
+}
+alias dist=districtcompilefunction
+
+function updatingfunction() {
+    if [ "$1" = "doghouseconsole" ]
+    then
+        composer global update doghouse-agency/console
+    fi
+    if [ "$1" = "npm" ]
+    then
+        sudo npm install -g npm
+    fi
+    if [ "$1" = "drupal" ]
+    then
+        error="InvalidArgumentException"
+        recommended=`composer show drupal/core-recommended 2&>1`
+
+        if [[ $recommended =~ $error ]];
+        then
+          echo 'recommended';
+          COMPOSER_MEMORY_LIMIT=-1 composer1 update drupal/core 'drupal-core-*' --with-all-dependencies
+        else
+          echo 'core';
+          COMPOSER_MEMORY_LIMIT=-1 composer1 update drupal/core --with-dependencies
+        fi
+
+    fi
+    if [ "$1" = "valet" ]
+    then
+        composer global require laravel/valet
+    fi
+    if [ "$1" = "laravel" ]
+    then
+        composer global require laravel/installer
+    fi
+
+}
+alias update=updatingfunction
+
+function vmfunction() {
+
+    if [ "$1" = "valet" ]
+    then
+      cd $SITES_DIRECTORY/laravel;
+
+      valet $2;
+    fi
+    if [ "$1" = "mailhog" ]
+    then
+      brew services $2 mailhog;
+    fi
+}
+alias vm=vmfunction
+
+function tarthisfunction() {
+    tar cvf $1.tar $1 && gzip $1.tar
+}
+alias tarthis=tarthisfunction
+
+function webifyimagefunction() {
+  convert $1 -quality 80 $1
+}
+alias webifyimage=webifyimagefunction
+function changespacesfunction() {
+    for i in *;do mv "$i" "${i// /_}";done
+}
+alias changespaces=changespacesfunction
+
+function isgitrepofunction() {
+    if [ -d .git ]; then
+      pwd
+    #  git remote -v
+    else
+      git rev-parse --git-dir 2> /dev/null;
+    fi;
+}
+alias isgitrepo=isgitrepofunction
+
+function findrepofunction() {
+    find . -maxdepth 1 -type d \( ! -name . \) \-exec zsh -c "cd '{}' && isgitrepo | grep $1" \;
+}
+alias findrepo=findrepofunction
+
+function closefunction() {
+    gethist 0 && exit;
+}
+alias close=closefunction
+
+#eval "$(rbenv init -)"
+#export PATH="/usr/local/mysql/bin:$HOME/.rbenv/bin:$PATH"
+
+export NVM_DIR=~/.nvm
+#source $(brew --prefix nvm)/nvm.sh
+
+alias getkey='pbcopy < ~/.ssh/id_rsa.pub'
+alias addkey='ssh-add -K ~/.ssh/id_rsa'
+
+function getimagesfunction() {
+    find "$HOME" -type f -name '*.jpg' \
+      -exec sh -c 'for d; do dirname "$d"; done' sh {} + | sort -u -o jpeg_dirs.txt
+
+
+   #   find "$HOME" -type f -name '*.jpg' -printf '%h\n' | sort -u -o jpeg_dirs.txt
+
+
+    find . -type f -iname '*.jpg' | while read file; do
+        ts=$(stat -f '%Sm' -t '%Y-%m-%d' "$file")
+        folder="/path/to/backup/folder/$ts"
+        [[ -d "$folder" ]] || echo mkdir "$folder"
+        echo mv "$file" "$folder/"
+    done
+}
+alias getimages=getimagesfunction
+
+function chnagephpfunction() {
+
+    php_version=`php -v | tail -r | tail -n 1 | cut -d " " -f 2 | cut -c 1-3`
+
+echo $php_version;
+    brew unlink php@$php_version
+    brew link php@$1
+    export PATH="/usr/local/opt/php@$1/bin:$PATH"
+    export PATH="/usr/local/opt/php@$1/sbin:$PATH"
+}
+alias chnagephp=chnagephpfunction
+alias changephp=chnagephpfunction
+
+
+function clearmaccachefunction() {
+  composer clearcache;
+  npm -global cache clean --force;
+  sudo rm -rf ~/Library/Caches/*;
+  docker system prune;
+}
+alias clearmaccache=clearmaccachefunction
+
+function searchandreplacefunction() {
+  find . \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i 's/$1/$2/g'
+}
+alias searchandreplace=searchandreplacefunction
+
+function pngtosvgfunction () {
+  convert -alpha remove $1.png pgm: | mkbitmap -f 32 -t 0.4 - -o - | potrace --svg -o $1.svg
+}
+alias pngtosvg=pngtosvgfunction
+
+alias png2svg='png2svg-cli'
+
+#brew link --force --overwrite php@7.4
+#brew services start php@7.4
+
+# export PATH="/usr/local/opt/php@7.4/bin:$PATH"
+# export PATH="/usr/local/opt/php@7.4/sbin:$PATH"
+
+#brew link --force --overwrite php@8.1
+# export PATH="/usr/local/opt/php@8.1/bin:$PATH"
+# export PATH="/usr/local/opt/php@8.1/Sbin:$PATH"
+# brew services start php@8.1
+
+
+# brew link --force --overwrite php@8.2
+# brew services start php@8.2
+export PATH="/usr/local/opt/php@8.2/bin:$PATH"
+export PATH="/usr/local/opt/php@8.2/sbin:$PATH"
+export XDEBUG_SESSION=PHPSTORM
+RUBY_CFLAGS="-Wno-error=implicit-function-declaration"
+#eval "$(fastly --completion-script-zsh)"
+

@@ -1,0 +1,53 @@
+
+
+
+    declare -A scv_tickets
+    scv_tickets['meetings']='SUPPORTDESK-5572'
+    scv_tickets['trtiage']='SUPPORTDESK-5573'
+    scv_tickets['estimating']='SUPPORTDESK-5574'
+    scv_tickets['deployments']='SUPPORTDESK-5575'
+    scv_tickets['hosting']='SUPPORTDESK-5576'
+    scv_tickets['admin']='SUPPORTDESK-???'
+
+    declare -A vdwc_tickets
+    vdwc_tickets['meetings']='SUPPORTDESK-5577'
+    vdwc_tickets['trtiage']='SUPPORTDESK-5578'
+    vdwc_tickets['estimating']='SUPPORTDESK-5579'
+    vdwc_tickets['deployments']='SUPPORTDESK-5580'
+    vdwc_tickets['hosting']='SUPPORTDESK-5581'
+    vdwc_tickets['admin']='SUPPORTDESK-???'
+
+
+    declare -A clients
+    clients['accce']=accce_tickets
+    clients['actpol']=actpol_tickets
+    clients['afp']=afp_tickets
+    clients['ccv']=ccv_tickets
+    clients['dgs']=dgs_tickets
+    clients['doghouse']=doghouse_tickets
+    clients['dpn']=dpn_tickets
+    clients['dtwd']=dtwd_tickets
+    clients['esc']=esc_tickets
+    clients['gosnells']=gosnells_tickets
+    clients['imp']=imp_tickets
+    clients['just']=just_tickets
+    clients['laundy']=laundy_tickets
+    clients['lotto']=lotto_tickets
+    clients['mcc']=mcc_tickets
+    clients['mhfa']=mhfa_tickets
+    clients['missing']=missing_tickets
+    clients['nba']=nba_tickets
+    clients['nhpo']=nhpo_tickets
+    clients['pfd']=pfd_tickets
+    clients['polnews']=polnews_tickets
+    clients['prov']=prov_tickets
+    clients['revise']=revise_tickets
+    clients['rfm']=rfm_tickets
+    clients['sbdc']=sbdc_tickets
+    clients['scv']=scv_tickets
+    clients['solotel']=solotel_tickets
+    clients['think']=think_tickets
+    clients['vcat']=vcat_tickets
+    clients['vdwc']=vdwc_tickets
+    clients['wnrm']=wnrm_tickets
+ 

@@ -1,8 +1,21 @@
 #!/bin/zsh
 
-ticket="SUPPORTDESK-${1}";
-clients=`echo "accce actpol afp ccv dgs doghouse dpn dtwd esc gosnells just laundy lotto mcc missing nba nhpo pfd polnews prov revise rfm sbdc solotel think vcat vdwc wnrm scv" | tr ' ' '\n'`;
-comments=`echo "triage init ac estimate qa release comms district confluence sync" | tr ' ' '\n'`;
+ticket="${1}";
+clients=`echo "DISD Doghouse District Solotel NBA DTWD VCAT PFD PROV Gosnells PAN APGML MCC ESC SCV ACCCE AFP RFM Thinkuknow MissingPersons Laundy CCV VDWC DGS DPN JustAuto NHPO Revise LotteryWest SBDC WNRM" | tr ' ' '\n'`;
+comments=`echo "Standup District Triage Perform InitResponse AC Investigate Estimate QA PR Release Pre-release Followup Comms QueueSweep Go-Live Confluence Sync" | tr ' ' '\n'`;
+times=`echo "5m 10m 15m 20m 25m 30m 45m 60m 75m 90m 105m 120m 180m 240m 300m" | tr ' ' '\n'`;
+comms=`echo "none Team Client Team/Client" | tr ' ' '\n'`
+
+qualify_ticket()  {
+    ticket="${1}";
+    regex="^[[:digit:]]"
+
+    if [[ $ticket =~ $regex ]]; then
+        echo "SUPPORTDESK-${ticket}"
+    else
+        echo "$ticket"
+    fi
+}
 
 # Function to handle user input
 get_triage() {
@@ -44,44 +57,120 @@ get_triage() {
     echo $triage_clients['$1'];
 }
 
+function get_log_time() {
+
+    log_time="$1"
+
+    case $log_time in
+        5m)
+            echo "0.08"
+            ;;
+        10m)
+            echo "0.17"
+            ;;
+        15m)
+            echo "0.25"
+            ;;
+        20m)
+            echo "0.33"
+            ;;
+        25m)
+            echo "0.42"
+            ;;
+        30m)
+            echo "0.50"
+            ;;
+        45m)
+            echo "0.75"
+            ;;
+        60m)
+            echo "1.00"
+            ;;
+        75m)
+            echo "1.25"
+            ;;
+        90m)
+            echo "1.50"
+            ;;
+        105m)
+            echo "1.75"
+            ;;
+        120m)
+            echo "2.00"
+            ;;
+        180m)
+            echo "3.00"
+            ;;
+        240m)
+            echo "4.00"
+            ;;
+        300m)
+            echo "5.00"
+            ;;
+    esac
+}
+
 # Function to handle user input
-handle_selection() {
+function get_comment() {
     t="$1"
     q="$2"
     c="$3"
-    tr="$4"
+  #  tr="$4"
+    lt="$4"
     nowdatetime=$(date +"%d-%b-%Y %H:%M") # 10/31/2019
+    cm="$5"
 
     case $q in
-        triage)
-            comment="${tr},${nowdatetime},0.25,Triage ${t}|Communication with team/client"
+        Triage)
+            comment="${t},${nowdatetime},${lt},${c} Triage|${cm}"
             ;;
-        sync)
-            comment="${tr},${nowdatetime},0.25,Triage ${tr}|Sync DB/files|Communication with team"
+        Sync)
+            comment="${t},${nowdatetime},${lt},${c} Sync DB/files|${cm}"
             ;;
-        confluence)
-            comment="${t},${nowdatetime},0.25,Triage ${tr}|Confluence updates"
+        Confluence)
+            comment="${t},${nowdatetime},${lt},Confluence updates"
             ;;
-        district)
-            comment="DISTCORE-1567${t},${nowdatetime},0.25,QA|${t}|Communication with team"
+        District)
+            comment="DISTCORE-1723,${nowdatetime},${lt},QA|${t}|${cm}"
             ;;
-        comms)
-            comment="${tr},${nowdatetime},0.25,Triage ${t}|Communication with client"
+        Comms)
+            comment="${t},${nowdatetime},${lt},${c} - ${cm}"
             ;;
-        release)
-            comment="${t},${nowdatetime},0.25,Release notes|Deploy to production|Smoke testing|Communication with client"
+        Pre-release)
+            comment="${t},${nowdatetime},${lt},${c} Pre-release notes|Smoke tests|${cm}"
             ;;
-        qa)
-            comment="${t},${nowdatetime},0.25,QA|Communication with team"
+        Release)
+            comment="${t},${nowdatetime},${lt},${c} Release notes|Deploy to production|Smoke testing|${cm}"
             ;;
-        estimate)
-            comment="${tr},${nowdatetime},0.25,Triage ${t}|Estimate|Communication with client"
+        QA)
+            comment="${t},${nowdatetime},${lt},${c} QA|${cm}"
             ;;
-        ac)
-            comment="${tr},${nowdatetime},0.25,Triage ${t}|Acceptance criteria|Communication with team"
+        PR)
+            comment="${t},${nowdatetime},${lt},${c} PR|${cm}"
             ;;
-        init)
-            comment="${tr},${nowdatetime},0.25,Triage ${t}|Initial response|Communication with team/client"
+        Estimate)
+            comment="${t},${nowdatetime},${lt},${c} Estimate|${cm}"
+            ;;
+        AC)
+            comment="${t},${nowdatetime},${lt},${c} Acceptance criteria|${cm}"
+            ;;
+        Investigate)
+            comment="${t},${nowdatetime},${lt},${c} Investigate|${cm}"
+            ;;
+        QueueSweep)
+            comment="${t},${nowdatetime},${lt},${c} Queue sweep"
+            ;;
+        InitResponse)
+            comment="${t},${nowdatetime},${lt},${c} Initial response|${cm}"
+            ;;
+        Perform)
+            comment="${t},${nowdatetime},${lt},Stuff|${cm}"
+            ;;
+        Followup)
+            comment="${t},${nowdatetime},${lt}|Release followup|${cm}"
+            ;;
+        Go-Live)
+            comment="${t},${nowdatetime},${lt}|Go Live|${cm}"
             ;;
     esac
 
@@ -103,14 +192,16 @@ function get_logfile() {
     if [ ! -f "${logfile}" ]; then
         touch "${logfile}";
         chmod 777 "${logfile}";
-    fi
+        cat "$templatefile" > "$logfile";
+   fi
 
     echo "${logfile}"
 }
 
+ticket=$(qualify_ticket "${ticket}");
 client=`printf "${clients}" | fzf`
 
-if printf $clients | ggrep -qs $client; then
+if printf $clients | grep -qs $client; then
  # all good
 else
     echo "Failed to get a client";
@@ -118,22 +209,45 @@ else
 fi
 
 comment_type=`printf "${comments}" | fzf`
-if printf $comments | ggrep -qs $comment_type; then
+if printf $comments | grep -qs $comment_type; then
  # all good
 else
     echo "Failed to get a ticket type";
     exit
 fi
-tt=$(get_triage "${client}")
 
-comment=$(handle_selection "$ticket" "$comment_type" "$client" "${tt}")
+log_time_decimal=""
+log_time=`printf "${times}" | fzf`
+if printf $times | grep -qs $log_time; then
+  log_time_decimal=$(get_log_time "${log_time}")
+else
+    echo "Failed to get a log time";
+    exit
+fi
+
+comms_text=""
+comm=`printf "${comms}" | fzf`
+comms_text=""
+
+if printf $comms | grep -qs $comm; then
+    comms_text="Communication with ${comm}"
+else
+    echo "Failed to get a communications";
+    exit
+fi
+    echo "${comms_text}";
+ #   exit
+# if [ $comms_text == "Communication with none" ] then
+#     comms_text=""
+# fi
+
+# tt=$(get_triage "${client}")
+
+echo "$ticket: $comment_type $client ${log_time_decimal} ${comms_text}"
+
+comment=$(get_comment "$ticket" "$comment_type" "$client" "${log_time_decimal}" "${comms_text}")
 logfile=$(get_logfile)
-echo "Go to file:///${logfile}";
 
-#exit
-
-echo -e "${comment}" >> "${logfile}"
-
-
-
-
+echo "Go to file:///${logfile}"
+echo "${comment}"
+echo "${comment}" >> "${logfile}"
