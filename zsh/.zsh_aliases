@@ -1,7 +1,7 @@
 # ZSH Aliases
 SITES_DIRECTORY="/Users/bevan/Sites"
 
-source ~/.zsh_lagoon
+source .zsh_lagoon
 
 alias please='sudo'
 alias screenshots='defaults write com.apple.screencapture location ~/Screenshots/'
@@ -82,7 +82,7 @@ alias kps='ps aux | grep PhpStorm'
 
 alias mon='ssh bholman@monitoring-01.stack.host'
 
-source ~/.zsh_site_aliases.sh
+source .zsh_site_aliases.sh
 
 ## Commands
 ### Grep
