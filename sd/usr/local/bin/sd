@@ -2,7 +2,7 @@
 
 ticket="${1}";
 clients=`echo "DISD Doghouse District Solotel NBA DTWD VCAT PFD PROV Gosnells PAN APGML MCC ESC SCV ACCCE AFP RFM Thinkuknow MissingPersons Laundy CCV VDWC DGS DPN JustAuto NHPO Revise LotteryWest SBDC WNRM" | tr ' ' '\n'`;
-comments=`echo "Standup District Triage Perform InitResponse AC Investigate Estimate QA PR Release Pre-release Followup Comms QueueSweep Go-Live Confluence Sync" | tr ' ' '\n'`;
+comments=`echo "Standup District Triage Perform InitResponse InitResponse-Investigate AC Investigate Estimate QA PR Release Pre-release Followup Comms QueueSweep Go-Live Confluence Sync" | tr ' ' '\n'`;
 times=`echo "5m 10m 15m 20m 25m 30m 45m 60m 75m 90m 105m 120m 180m 240m 300m" | tr ' ' '\n'`;
 comms=`echo "none Team Client Team/Client" | tr ' ' '\n'`
 
@@ -131,7 +131,7 @@ function get_comment() {
             comment="${t},${nowdatetime},${lt},Confluence updates"
             ;;
         District)
-            comment="DISTCORE-1723,${nowdatetime},${lt},QA|${t}|${cm}"
+            comment="DISTCORE-1851,${nowdatetime},${lt},QA|${t}|${cm}"
             ;;
         Comms)
             comment="${t},${nowdatetime},${lt},${c} - ${cm}"
@@ -171,6 +171,9 @@ function get_comment() {
             ;;
         Go-Live)
             comment="${t},${nowdatetime},${lt}|Go Live|${cm}"
+            ;;
+        InitResponse-Investigate)
+            comment="${t},${nowdatetime},${lt},${c} Initial response/Investigate|${cm}"
             ;;
     esac
 
@@ -243,11 +246,10 @@ fi
 
 # tt=$(get_triage "${client}")
 
-echo "$ticket: $comment_type $client ${log_time_decimal} ${comms_text}"
+# echo "$ticket: $comment_type $client ${log_time_decimal} ${comms_text}"
 
 comment=$(get_comment "$ticket" "$comment_type" "$client" "${log_time_decimal}" "${comms_text}")
 logfile=$(get_logfile)
 
-echo "Go to file:///${logfile}"
-echo "${comment}"
 echo "${comment}" >> "${logfile}"
+echo "Go to file:///${logfile}"

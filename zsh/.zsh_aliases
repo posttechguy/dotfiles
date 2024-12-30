@@ -1,7 +1,7 @@
 # ZSH Aliases
 SITES_DIRECTORY="/Users/bevan/Sites"
 
-source .zsh_lagoon
+source ~/dotfiles/zsh/.zsh_lagoon
 
 alias please='sudo'
 alias screenshots='defaults write com.apple.screencapture location ~/Screenshots/'
@@ -25,7 +25,6 @@ alias sublpackages='subl /Users/bevan/Library/Application\ Support/Sublime\ Text
 alias sshconfig='subl /Users/bevan/.ssh/config'
 alias sshknown='subl /Users/bevan/.ssh/known_hosts'
 alias hosts='subl /etc/hosts'
-alias dh='~/Documents/doghouse'
 alias phps='/Applications/PhpStorm.app/Contents/MacOS/phpstorm'
 alias asdasdasdasd='sed '1,$1d' $2 > $3'
 alias cl='while [ 1 ] ; do echo -en "$(date +%T)\r" ; sleep 1; done';
@@ -40,7 +39,7 @@ alias eject='diskutil unmount  disk2s1'
 alias dcm='/usr/local/bin/docker-compose exec mariadb bash'
 alias dpst='/usr/local/bin/docker container ls --format "table {{.ID}}\t{{.Names}}\t{{.Ports}}" -a'
 alias dk="pkill -SIGHUP -f /Applications/Docker.app 'docker serve' "
-alias dup="open -a Docker"
+alias dup="open -a Docker && sleep 15 && ps aux | grep Docker"
 alias iscon='ahoy drush st | grep "Connected"'
 alias dcu='/usr/local/bin/docker-compose up'
 alias dcd='/usr/local/bin/docker-compose down'
@@ -58,16 +57,16 @@ alias top='bpytop'
 
 
 function lsupfunction() {
-    open -a Docker &
-    wait 180
     cd ~/Code/doghouse-lagoon-scripts &&
     git pull &&
     ./project stop &&
-    ./project full-rebuild &&
+    ./project build &&
     ./project start &&
     ./project use
 }
 alias lsup=lsupfunction
+
+#
 
 function stupfunction() {
     ./project stop;
@@ -82,7 +81,7 @@ alias kps='ps aux | grep PhpStorm'
 
 alias mon='ssh bholman@monitoring-01.stack.host'
 
-source .zsh_site_aliases.sh
+source ~/dotfiles/zsh/.zsh_site_aliases.sh
 
 ## Commands
 ### Grep
@@ -440,22 +439,22 @@ function getlagoonenvironment() {
   delimiter="$2";
   lagoon="deploy${delimiter}lagoon";
   project=;
-  environment="${lagoon}${delimiter}staging";
+  enviro="${lagoon}${delimiter}staging";
 
-  if [ "$shortEnv" = "p" ]
+  if [ "$shortEnv" = "production" ]
   then
-    environment="${lagoon}${delimiter}production";
+    enviro="${lagoon}${delimiter}production";
   fi
-  if [ "$shortEnv" = "s" ]
+  if [ "$shortEnv" = "staging" ]
   then
-    environment="${lagoon}${delimiter}staging";
+    enviro="${lagoon}${delimiter}staging";
   fi
-  if [ "$shortEnv" = "d" ]
+  if [ "$shortEnv" = "development" ]
   then
-    environment="${lagoon}${delimiter}development";
+    enviro="${lagoon}${delimiter}development";
   fi
 
-  echo "$environment";
+  echo "$enviro";
 }
 alias gle=getlagoonenvironment
 
@@ -483,16 +482,20 @@ function lagoonulifunction() {
   uid="$3";
   drush_command="drush uli"
 
-  environment=$(getlagoonenvironment "$2" "-")
+  lagoon_client=`printf "${lagoon_clients}" | fzf`
+  lagoon_env=`printf "${lagoon_envs}" | fzf`
+
+  environment=$(getlagoonenvironment "${lagoon_env}" "/")
+  display_env=$(getlagoonenvironment "${lagoon_env}" "-")
 
   if [[ -n "${lagoon_projects['$1']}" ]]; then
-    echo "Connecting to lagoon: ${lagoon_projects['$1']}-${environment}"
-    echo "lagoon ssh -p ${lagoon_projects['$1']} -e ${environment} -C $drush_command"
+    echo "Connecting to lagoon: ${$lagoon_projects['$lagoon_client']}-${environment}"
+    echo "lagoon ssh -p ${$lagoon_projects['$lagoon_client']} -e ${environment} -C $drush_command"
 
     # if [ -n "$3" ]; then
     #     drush_command="drush uli --uid=${uid}"
     # fi
-    lagoon ssh -p $lagoon_projects['$1'] -e $environment -C $drush_command
+    lagoon ssh -p $lagoon_projects['$lagoon_client'] -e $environment -C $drush_command
   else
     echo "Bah boouw"
   fi
@@ -514,7 +517,13 @@ function lagoonstfunction() {
 alias lst=lagoonstfunction
 
 
-
+getent() {
+  [ "$1" = "hosts" ] && shift
+  for x
+  do
+    echo $x $(dscacheutil -q host -a name $x | awk '/^ip_address/{print $NF}')
+  done
+}
 
 function drushallfunction() {
 
@@ -892,16 +901,17 @@ alias png2svg='png2svg-cli'
 # export PATH="/usr/local/opt/php@7.4/sbin:$PATH"
 
 #brew link --force --overwrite php@8.1
-# export PATH="/usr/local/opt/php@8.1/bin:$PATH"
-# export PATH="/usr/local/opt/php@8.1/Sbin:$PATH"
-# brew services start php@8.1
+# export PATH="/usr/local/opt/php@8.4/bin:$PATH"
+# export PATH="/usr/local/opt/php@8.4/Sbin:$PATH"
 
 
 # brew link --force --overwrite php@8.2
 # brew services start php@8.2
-export PATH="/usr/local/opt/php@8.2/bin:$PATH"
-export PATH="/usr/local/opt/php@8.2/sbin:$PATH"
+export PATH="/usr/local/opt/php/bin:$PATH"
+export PATH="/usr/local/opt/php/sbin:$PATH"
 export XDEBUG_SESSION=PHPSTORM
 RUBY_CFLAGS="-Wno-error=implicit-function-declaration"
 #eval "$(fastly --completion-script-zsh)"
-
+# brew services restart ph
+alias php='/usr/local/bin/php'
+# /usr/bin/php -> ../../Cellar/php/8.4.1_1/bin/php
