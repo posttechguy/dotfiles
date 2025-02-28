@@ -1,10 +1,18 @@
 #!/bin/zsh
 
 ticket="${1}";
-clients=`echo "DISD Doghouse District Solotel NBA DTWD VCAT PFD PROV Gosnells PAN APGML MCC ESC SCV ACCCE AFP RFM Thinkuknow MissingPersons Laundy CCV VDWC DGS DPN JustAuto NHPO Revise LotteryWest SBDC WNRM" | tr ' ' '\n'`;
-comments=`echo "Standup District Triage Perform InitResponse InitResponse-Investigate AC Investigate Estimate QA PR Release Pre-release Followup Comms QueueSweep Go-Live Confluence Sync" | tr ' ' '\n'`;
+clients=`echo "DISD Doghouse District Zendesk Solotel NBA DTWD VCAT PFD PROV PortAuthorityNSW Gosnells PAN APGML MCC ESC SCV ACCCE AFP APGML RFM Thinkuknow MissingPersons Laundy CCV VDWC DGS DPN JustAuto NHPO Revise LotteryWest SBDC WNRM" | tr ' ' '\n'`;
+zendesks=`echo "Nillumbik Murrindindi ANC3D ProductivityCommission Capire" | tr ' ' '\n'`;
+comments=`echo "Standup District Triage Perform InitResponse InitResponse-Investigate Training AC Investigate Estimate QA PR Release Pre-release Followup Comms QueueSweep Go-Live Confluence Sync SSL" | tr ' ' '\n'`;
 times=`echo "5m 10m 15m 20m 25m 30m 45m 60m 75m 90m 105m 120m 180m 240m 300m" | tr ' ' '\n'`;
 comms=`echo "none Team Client Team/Client" | tr ' ' '\n'`
+
+# declare -A zendesks_tickets
+# zendesks_tickets['Nillumbik']='DISTCORE-1947'
+# zendesks_tickets['Murrindindi']='DISTCORE-1948'
+# zendesks_tickets['ANC3D']='DISTCORE-1468'
+# zendesks_tickets['ProductivityCommission']='DISTCORE-1949'
+# zendesks_tickets['Capire']='DISTCORE-1950'
 
 qualify_ticket()  {
     ticket="${1}";
@@ -17,49 +25,30 @@ qualify_ticket()  {
     fi
 }
 
-# Function to handle user input
-get_triage() {
-
-    declare -A triage_clients
-
-    triage_clients['accce']='SUPPORTDESK-5912'
-    triage_clients['actpol']='SUPPORTDESK-5930'
-    triage_clients['afp']='SUPPORTDESK-5365'
-    triage_clients['ccv']='SUPPORTDESK-5536'
-    triage_clients['dgs']='SUPPORTDESK-5480'
-    triage_clients['doghouse']='SUPPORTDESK-5511'
-    triage_clients['dpn']='SUPPORTDESK-5888'
-    triage_clients['dtwd']='SUPPORTDESK-5882'
-    triage_clients['esc']='SUPPORTDESK-5894'
-    triage_clients['gosnells']='SUPPORTDESK-5485'
-    triage_clients['imp']='SUPPORTDESK-5876'
-    triage_clients['just']='SUPPORTDESK-5900'
-    triage_clients['laundy']='SUPPORTDESK-5395'
-    triage_clients['lotto']='SUPPORTDESK-5858'
-    triage_clients['mcc']='SUPPORTDESK-5234'
-    triage_clients['mhfa']='SUPPORTDESK-5906'
-    triage_clients['missing']='SUPPORTDESK-5924'
-    triage_clients['nba']='SUPPORTDESK-5542'
-    triage_clients['nhpo']='SUPPORTDESK-5547'
-    triage_clients['pfd']='SUPPORTDESK-5491'
-    triage_clients['polnews']='SUPPORTDESK-5918'
-    triage_clients['prov']='SUPPORTDESK-5496'
-    triage_clients['revise']='SUPPORTDESK-5864'
-    triage_clients['rfm']='SUPPORTDESK-5936'
-    triage_clients['sbdc']='SUPPORTDESK-5531'
-    triage_clients['solotel']='SUPPORTDESK-5573'
-    triage_clients['think']='SUPPORTDESK-5942'
-    triage_clients['vcat']='SUPPORTDESK-5506'
-    triage_clients['vdwc']='SUPPORTDESK-5578'
-    triage_clients['wnrm']='SUPPORTDESK-5870'
-    triage_clients['scv']='SUPPORTDESK-5501'
-
-    echo $triage_clients['$1'];
-}
-
 function get_log_time() {
 
     log_time="$1"
+
+    local total_hours=0
+    local hours=0
+    local minutes=0
+
+    # Parse hours and minutes using Zsh's built-in regular expression matching
+    if [[ "$log_time" =~ ([0-9]+)h ]]; then
+        hours="${match[1]}"
+    fi
+
+    if [[ "$inplog_timeut" =~ ([0-9]+)m ]]; then
+        minutes="${match[1]}"
+    fi
+
+    # Convert minutes to hours
+    decimal_minutes=$(echo "scale=2; $minutes / 60" | bc)
+
+    # Calculate total decimal hours
+    total_hours=$(echo "scale=2; $hours + $decimal_minutes" | bc)
+
+  #  echo "$total_hours"
 
     case $log_time in
         5m)
@@ -119,10 +108,15 @@ function get_comment() {
     lt="$4"
     nowdatetime=$(date +"%d-%b-%Y %H:%M") # 10/31/2019
     cm="$5"
+    desc="$6"
+    desk="$7"
 
+        # Zendesk)
+        #     comment="${$zendesks_tickets['$desk']},${nowdatetime},${lt},${c} ZenDesk-${t} Triage - ${desc}|${cm}"
+        #     ;;
     case $q in
         Triage)
-            comment="${t},${nowdatetime},${lt},${c} Triage|${cm}"
+            comment="${t},${nowdatetime},${lt},${c} Triage - ${desc}|${cm}"
             ;;
         Sync)
             comment="${t},${nowdatetime},${lt},${c} Sync DB/files|${cm}"
@@ -131,19 +125,19 @@ function get_comment() {
             comment="${t},${nowdatetime},${lt},Confluence updates"
             ;;
         District)
-            comment="DISTCORE-1851,${nowdatetime},${lt},QA|${t}|${cm}"
+            comment="DISTCORE-1883,${nowdatetime},${lt},QA|${t}|${cm}"
             ;;
         Comms)
             comment="${t},${nowdatetime},${lt},${c} - ${cm}"
             ;;
         Pre-release)
-            comment="${t},${nowdatetime},${lt},${c} Pre-release notes|Smoke tests|${cm}"
+            comment="${t},${nowdatetime},${lt},${c} Pre-release notes|TBA Schedule|Smoke tests|${cm}"
             ;;
         Release)
             comment="${t},${nowdatetime},${lt},${c} Release notes|Deploy to production|Smoke testing|${cm}"
             ;;
         QA)
-            comment="${t},${nowdatetime},${lt},${c} QA|${cm}"
+            comment="${t},${nowdatetime},${lt},${c} QA|${desc}|${cm}"
             ;;
         PR)
             comment="${t},${nowdatetime},${lt},${c} PR|${cm}"
@@ -163,8 +157,11 @@ function get_comment() {
         InitResponse)
             comment="${t},${nowdatetime},${lt},${c} Initial response|${cm}"
             ;;
+        Training)
+            comment="${t},${nowdatetime},${lt},${c} Training|${cm}"
+            ;;
         Perform)
-            comment="${t},${nowdatetime},${lt},Stuff|${cm}"
+            comment="${t},${nowdatetime},${lt},${desc}|${cm}"
             ;;
         Followup)
             comment="${t},${nowdatetime},${lt}|Release followup|${cm}"
@@ -203,9 +200,13 @@ function get_logfile() {
 
 ticket=$(qualify_ticket "${ticket}");
 client=`printf "${clients}" | fzf`
+zendesk="";
 
 if printf $clients | grep -qs $client; then
  # all good
+     if [ "$client" = "Zendesk" ]; then
+       zendesk=`printf "${zendesks}" | fzf`
+    fi
 else
     echo "Failed to get a client";
     exit
@@ -213,7 +214,11 @@ fi
 
 comment_type=`printf "${comments}" | fzf`
 if printf $comments | grep -qs $comment_type; then
- # all good
+    if [ "$comment_type" = "Triage" ] || [ "$comment_type" = "Perform" ]; then
+       echo "Additional text for description: ";
+       read desc_desc;
+       echo "This is what you typed as a description: $desc_desc";
+    fi
 else
     echo "Failed to get a ticket type";
     exit
@@ -228,6 +233,20 @@ else
     exit
 fi
 
+# # Prompt user for input
+# echo "Enter log time (e.g., '1h 30m'):"
+# read log_time
+
+# # Check if input is empty
+# if [[ -z "$log_time" ]]; then
+#     echo "No time input provided. Exiting."
+#     exit 1
+# fi
+
+# # Call the function with the user input
+# log_time_decimal=$(get_log_time "$log_time")
+# echo "Decimal time for '$log_time' is: $log_time_decimal"
+
 comms_text=""
 comm=`printf "${comms}" | fzf`
 comms_text=""
@@ -238,17 +257,15 @@ else
     echo "Failed to get a communications";
     exit
 fi
-    echo "${comms_text}";
+    echo "${client}";
  #   exit
 # if [ $comms_text == "Communication with none" ] then
 #     comms_text=""
 # fi
 
-# tt=$(get_triage "${client}")
-
 # echo "$ticket: $comment_type $client ${log_time_decimal} ${comms_text}"
 
-comment=$(get_comment "$ticket" "$comment_type" "$client" "${log_time_decimal}" "${comms_text}")
+comment=$(get_comment "$ticket" "$comment_type" "$client" "${log_time_decimal}" "${comms_text}" "${desc_desc}" "${zendesk}")
 logfile=$(get_logfile)
 
 echo "${comment}" >> "${logfile}"

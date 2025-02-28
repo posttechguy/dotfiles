@@ -909,9 +909,13 @@ alias png2svg='png2svg-cli'
 # brew services start php@8.2
 export PATH="/usr/local/opt/php/bin:$PATH"
 export PATH="/usr/local/opt/php/sbin:$PATH"
-export XDEBUG_SESSION=PHPSTORM
-RUBY_CFLAGS="-Wno-error=implicit-function-declaration"
+export PATH="/Users/bevan/dotfiles/sd/usr/local/bin:$PATH"
+export XDEBUG_SESSION=VSCODIUM
+# RUBY_CFLAGS="-Wno-error=implicit-function-declaration"
 #eval "$(fastly --completion-script-zsh)"
 # brew services restart ph
-alias php='/usr/local/bin/php'
+#alias php='/usr/local/bin/php'
 # /usr/bin/php -> ../../Cellar/php/8.4.1_1/bin/php
+#
+#export PATH="/usr/local/bin:$PATH"
+#brew services start php

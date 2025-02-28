@@ -1,0 +1,20 @@
+#!/bin/zsh
+
+# Get the current date and time
+current_time=$(date +%s)
+
+# Set the time for 8:00 AM today
+eight_thirty_am=$(date -j -v8H -v30M +%s)
+
+# Calculate the difference in seconds
+time_diff=$((current_time - eight_thirty_am))
+
+# Convert the time difference to hours, minutes, and seconds
+hours=$((time_diff / 3600))
+minutes=$(((time_diff % 3600) / 60))
+
+# Calculate decimal minutes (minutes as a fraction of an hour)
+decimal_minutes=$(echo "scale=2; ($minutes / 60)" | bc)
+
+# Output the result
+echo "Time since 8:30 AM: ${hours}${decimal_minutes}"

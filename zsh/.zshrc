@@ -9,7 +9,7 @@ fi
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH="/home/bevan/.oh-my-zsh"
+export ZSH="/Users/bevan/.oh-my-zsh"
 
 HISTFILE="$HOME/.zsh_history"
 HISTSIZE=10000000
@@ -118,7 +118,10 @@ export COMPOSER_MEMORY_LIMIT=-1a
 #export PATH="$PATH:/home/bevan/.config/composer/vendor/doghouse-agency/console/bin"
 
 
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+#eval "$(/Users/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+source ~/dotfiles/zsh/.zsh_aliases
+
