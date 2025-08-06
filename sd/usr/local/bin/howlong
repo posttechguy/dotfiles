@@ -4,7 +4,7 @@
 current_time=$(date +%s)
 
 # Set the time for 8:00 AM today
-eight_thirty_am=$(date -j -v8H -v30M +%s)
+eight_thirty_am=$(date -j -v9H -v30M +%s)
 
 # Calculate the difference in seconds
 time_diff=$((current_time - eight_thirty_am))

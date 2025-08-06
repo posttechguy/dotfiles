@@ -1,0 +1,91 @@
+#!/bin/bash
+
+# Check if fzf is installed
+if ! command -v fzf &> /dev/null; then
+    echo "fzf is not installed. Please install it first."
+    echo "You can install it with: sudo apt-get install fzf (Debian/Ubuntu)"
+    echo "Or: brew install fzf (MacOS with Homebrew)"
+    exit 1
+fi
+
+# Clear the screen
+clear
+
+# Welcome message
+echo "====================================="
+echo "     Interactive Task Manager"
+echo "====================================="
+echo
+
+# Get user name with standard read
+echo "Please enter your name:"
+read -p "> " user_name
+echo
+
+# Use fzf to select a task category
+echo "Hi $user_name! Please select a task category:"
+category=$(echo -e "Work\nPersonal\nHome\nHealth\nLearning" | fzf --height=40% --border --prompt="Select category: ")
+
+# Check if user selected a category (or pressed ESC)
+if [ -z "$category" ]; then
+    echo "No category selected. Exiting."
+    exit 0
+fi
+
+echo
+echo "Selected category: $category"
+echo
+
+# Use fzf to select priority
+echo "Select priority level:"
+priority=$(echo -e "High\nMedium\nLow" | fzf --height=30% --border --prompt="Select priority: ")
+
+# Check if user selected a priority
+if [ -z "$priority" ]; then
+    echo "No priority selected. Exiting."
+    exit 0
+fi
+
+echo
+echo "Selected priority: $priority"
+echo
+
+# Use read to get task description
+echo "Please enter a description for your $priority priority $category task:"
+read -p "> " task_description
+
+echo
+echo "Creating task..."
+sleep 1
+
+# Show the task summary
+clear
+echo "====================================="
+echo "          Task Created"
+echo "====================================="
+echo "Owner: $user_name"
+echo "Category: $category"
+echo "Priority: $priority"
+echo "Description: $task_description"
+echo "Created: $(date)"
+echo "====================================="
+
+# Use fzf for follow-up action
+echo
+echo "What would you like to do next?"
+next_action=$(echo -e "Add another task\nView all tasks\nEdit this task\nExit" | fzf --height=40% --border --prompt="Select action: ")
+
+case "$next_action" in
+    "Add another task")
+        echo "Feature not implemented in this demo."
+        ;;
+    "View all tasks")
+        echo "Feature not implemented in this demo."
+        ;;
+    "Edit this task")
+        echo "Feature not implemented in this demo."
+        ;;
+    "Exit"|"")
+        echo "Thank you for using the Task Manager. Goodbye!"
+        ;;
+esac

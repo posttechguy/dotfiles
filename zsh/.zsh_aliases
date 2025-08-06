@@ -3,13 +3,56 @@ SITES_DIRECTORY="/Users/bevan/Sites"
 
 source ~/dotfiles/zsh/.zsh_lagoon
 
+build_fmenu() {
+  local title="$1"
+
+  LSSHMENU=(
+    fzf
+    --header="$title"
+    --layout=reverse
+    --exact
+    --border=bold
+    --border=rounded
+    --multi
+    --color=dark
+    --height=70%
+    --info=hidden
+    --header-first
+    --bind change:top
+    --prompt
+  )
+}
+
+cprint() {
+  local colour="$1"
+  shift
+  local code
+  case $colour in
+    red) code=31 ;;
+    green) code=32 ;;
+    yellow) code=33 ;;
+    blue) code=34 ;;
+    magenta) code=35 ;;
+    cyan) code=36 ;;
+    white) code=37 ;;
+    bold-red)    codes="1;31" ;;
+    bold-green)  codes="1;32" ;;
+    on-blue)     codes="44;37" ;;   # white text on blue bg
+    bold_on_red) codes="1;37;41" ;; # bold white on red
+    *)           codes="0" ;;       # default/reset
+  esac
+  echo "\033[${code}m$*\033[0m"
+}
+
+
 alias please='sudo'
 alias screenshots='defaults write com.apple.screencapture location ~/Screenshots/'
 alias flushdns='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
-alias vi='nvim'
+alias v='nvim'
 alias ebash='nvim ~/.zsh_aliases'
 alias rebash='source ~/.zshrc '
 alias mbash='more ~/.zshrc'
+alias dot='cd ~/dotfiles'
 alias evim='nvim ~/.vimrc'
 alias python='python3'
 alias rsync='/usr/local/bin/rsync'
@@ -33,6 +76,15 @@ alias phpstorm='open -na "PhpStorm.app"'
 alias rmddirs='rm -rf modules profiles sites themes'
 alias findd='find . -type d -name $1'
 alias eject='diskutil unmount  disk2s1'
+alias c='codium'
+alias cli='/Users/bevan/Clients'
+alias sdbash='cd ~/dotfiles/sd && codium .'
+
+function validcertfunc() {
+  echo | openssl s_client -showcerts -servername $1 -connect $1:443 2>/dev/null | openssl x509 -inform pem -noout -text | grep 'Not After' | sed -e 's/^.*:\ //g'
+}
+alias  validcert=validcertfunc
+
 #alias lsup='cd ~/Code/doghouse-lagoon-scripts && git pull && ./project stop && ./project build && ./project start && ./project use'
 
 ### Docker
@@ -177,6 +229,29 @@ alias gz='gzip'
 alias untar='tar -xvf'
 alias untargz='tar -xzvf'
 
+# OG zip -er powerdiv_live.zip powerdiv_live.sql
+# New zippass powerdiv_live.sql powerdiv_live.zip
+alias zippass='zip -er $2 $1'
+
+
+# To tar and gzip a folder, the syntax is:
+
+# tar czf name_of_archive_file.tar.gz name_of_directory_to_tar
+# Adding - before the options (czf) is optional with tar. The effect of czf is as follows:
+
+# c — create an archive file (as opposed to extract, which is x)
+# f — filename of the archive file
+# z — filter archive through gzip (remove this option to create a .tar file)
+# If you want to tar the current directory, use . to designate that.
+
+# To construct filenames dynamically, use the date utility (look at its man page for the available format options). For example:
+
+# cd /var/www &&
+# tar czf ~/www_backups/$(date +%Y%m%d-%H%M%S).tar.gz .
+# This will create a file named something like 20120902-185558.tar.gz.
+
+
+
 alias staging='git fetch origin staging && git checkout staging && git reset --hard remotes/origin/staging && git pull origin staging'
 alias production='git checkout production'
 alias uat='git checkout uat && git pull origin uat'
@@ -203,14 +278,41 @@ function mvgxfunction() {
 }
 alias mvgx=mvgxfunction
 
+FASTLY_KEY="bwttvSgpGieZvsfYijCj1LtLFGzTI0D_"
+
 function fastlypurgefunction() {
 
-  curl -XPURGE -H Fastly-Key:dexe00S891wAaHWXswgUdZchP2EpkRNA $1
-
-#  fastly purge --service-id=0VfjtEv26MEnPZwvF4qtZO --url=$1 --verbose
+  curl -XPURGE -H Fastly-Key:$FASTLY_KEY $1
 
 }
 alias fp=fastlypurgefunction
+
+function purgedomainfunction() {
+
+  basic_auth=""
+  if [ "$2" != "" ]; then
+    basic_auth="$2@"
+  fi
+
+  echo "curl -sXPOST https://api.fastly.com/service/0VfjtEv26MEnPZwvF4qtZO/purge/$basic_auth$1 -H \"Fastly-Key:$FASTLY_KEY\""
+  curl -sXPOST https://api.fastly.com/service/0VfjtEv26MEnPZwvF4qtZO/purge/$basic_auth$1 -H "Fastly-Key:$FASTLY_KEY"
+
+}
+alias pd=purgedomainfunction
+
+function cachedomainfunction() {
+
+  # basic_auth=""
+  # if [ "$2" != "" ]; then
+  #   basic_auth="$2@"
+  # fi
+
+  echo "curl -sLIXGET -H 'Fastly-Debug: 1' -H 'Accept-Encoding: br, zstd, gzip, deflate' \"$1\" | sort"
+  curl -sLIXGET -H 'Fastly-Debug: 1' -H 'Accept-Encoding: br, zstd, gzip, deflate' "$1" | sort
+
+}
+alias cached=cachedomainfunction
+
 
 function fixpermfunction {
     find . -type f -exec chmod 644 {} \;
@@ -257,7 +359,7 @@ alias cleangit=cleangitfunction
 
 alias lush='php artisan '
 alias valeterror='tail -f /Users/bevan/.config/valet/Log/nginx-error.log'
-alias valetnginxconf='vim /usr/local/etc/nginx/nginx.conf'
+# alias valetnginxconf='vim /usr/local/etc/nginx/nginx.conf'
 
 function llogfunction() {
   dd=$(date -v -0d '+%d');
@@ -318,25 +420,87 @@ alias mkcdir=mkcdirfunction
 
 function inittimefunction() {
 
-    dd=$(date -v -$1d +%d/%m/%Y); # 10/31/2019
-    fd=$(date -v -$1d +%Y-%m-%d); # 2019-06-28
-    md=$(date -v -$1d +%m-%B);    # 06-June
-    yd=$(date -v -$1d +%Y);       # 2019
-    history_root="/Users/bevan/Documents/History";
-    templatefile="$history_root/template.log";
-    logfile="$history_root/$yd/$md/$fd.md";
+    # dd=$(date -v -$1d +%d/%m/%Y); # 10/31/2019
+    # fd=$(date -v -$1d +%Y-%m-%d); # 2019-06-28
+    # md=$(date -v -$1d +%m-%B);    # 06-June
+    # yd=$(date -v -$1d +%Y);       # 2019
+    # history_root="/Users/bevan/Documents/History";
+    # templatefile="$history_root/template.log";
+    # logfile="$history_root/$yd/$md/$fd.csv";
 
-    if [ ! -d "$history_root/$yd/$md" ]; then
-        mkdir -p "$history_root/$yd/$md";
+    # if [ ! -d "$history_root/$yd/$md" ]; then
+    #     mkdir -p "$history_root/$yd/$md";
+    # fi
+
+    # echo "file:///$logfile";
+    # if [ ! -f "$logfile" ]; then
+    #     touch "$logfile";
+    #     chmod 777 "$logfile";
+    # fi
+
+    # cat "$templatefile" > "$logfile";
+
+    fd=$(date +%Y-%m-%d); # 2019-06-28
+    md=$(date +%m-%B);    # 06-June
+    yd=$(date +%Y);       # 2019
+    #wd=$(date +%U);       # W15
+    wd=$((10#$(date +%U) + 1))
+
+    history_root="/Users/${USER}/Documents/History";
+    templatefile="${history_root}/default.log";
+    mdfile="${history_root}/${yd}/${md}/${fd}.md";
+
+    mkdir -p "${history_root}/${yd}/${md}";
+
+    if [ ! -f "${mdfile}" ]; then
+        touch "${mdfile}";
+        chmod 777 "${mdfile}";
+        cat "$templatefile" > "$mdfile";
+        current_date=$(date "+%Y-%b-%d")
+        current_day=$(date "+%A")
+        week_number=$(date +%U)
+        week_number=$((week_number + 1))
+        formatted_week=$(printf "%02d" $week_number)
+        sed -i '' "s/yyyy-mmm-dd/$current_date/g" "$mdfile"
+        sed -i '' "s/ddd/$current_day/g" "$mdfile"
+        sed -i '' "s/www/$formatted_week/g" "$mdfile"
+
     fi
+    MD_FILE="${mdfile}"
 
-    echo "file:///$logfile";
-    if [ ! -f "$logfile" ]; then
-        touch "$logfile";
-        chmod 777 "$logfile";
+    timesheet_root="/Users/${USER}/Timesheets";
+    templatefile="${history_root}/timesheet.csv";
+    logfile="${timesheet_root}/${yd}/${md}/Jira-Import-W${wd}-${fd}.csv";
+
+    mkdir -p "${timesheet_root}/${yd}/${md}";
+
+    if [ ! -f "${logfile}" ]; then
+        touch "${logfile}";
+        chmod 777 "${logfile}";
+        cat "$templatefile" > "$logfile";
     fi
+    LOG_FILE="${logfile}"  # ✅ This is how we return a value without a subshell
 
-    cat "$templatefile" > "$logfile";
+echo "MD_FILE: $MD_FILE"
+echo "---------------------------------------------------------------------------------------------------------------"
+echo "LOGFILE: $logfile"
+echo "---------------------------------------------------------------------------------------------------------------"
+
+
+echo "Ruddr file: ${history_root}/ruddr.md"
+
+ruddr=$(awk -F',' 'NR > 1 { ruddr += $2 } END { print ruddr }' ${history_root}/ruddr.md)
+ruddr_printed=$(echo "scale=2; $ruddr" | bc)
+
+sum_printed="0.00"
+saved_time=$(echo "scale=2; ${ruddr_printed} + ${sum_printed}" | bc)
+printf "Saved time:  %.2f\n" "$saved_time"
+
+echo "---------------------------------------------------------------------------------------------------------------"
+catchup_time=$(echo "scale=2; 7.60 - ${ruddr_printed} - ${sum_printed}" | bc)
+cprint bold_on_red ""
+printf "${red}Time to catchup: ${yellow}%.2f${reset}\n" "$catchup_time"
+cprint red "---------------------------------------------------------------------------------------------------------------"
 }
 alias inittime=inittimefunction
 
@@ -356,7 +520,7 @@ echo $DAY_INTERVAL;
     # md=$(date -v -$DAY_INTERVAL +%m-%B);    # 06-June
     # yd=$(date -v -$DAY_INTERVAL +%Y);       # 2019
     # history_root="/Users/bevan/Documents/History";
-    # logfile="$history_root/$yd/$md/$fd.md";
+    # logfile="$history_root/$yd/$md/$fd.csv";
 
     # if [ ! -d "$history_root/$yd/$md" ]; then
     #     mkdir -p "$history_root/$yd/$md";
@@ -370,7 +534,7 @@ echo $DAY_INTERVAL;
     # echo $dd;
     # echo $logfile;
 
-    # # history -E | grep "10/31/2017" >> /Users/bevan/Documents/History/2017/10-October/2017-10-31.log;
+    # history -E | sort -k3,3 -k2 | grep "2025-07-24" >> /Users/bevan/Documents/History/2025/07-July/2025-07-24.md
     # history -E | sort -k3,3 -k2 | grep "$dd" >> "$logfile";
 }
 alias gethist=gethistoryfunction
@@ -404,7 +568,7 @@ export PATH
    #     . $(brew --prefix)/etc/bash_completion.d/git-completion.bash
 #}
 
-alias wifipassword='security find-generic-password -ga "Doghouse" |grep "password:"'
+alias wifipassword='security find-generic-password -ga "doghouse" |grep "password:"'
 
 # BEGIN SNIPPET: Platform.sh CLI configuration
 HOME=${HOME:-'/Users/bevan'}
@@ -460,6 +624,9 @@ alias gle=getlagoonenvironment
 
 function lagoonsshfunction() {
 
+  #build_fmenu "Lagoon SSH — Choose a client: "
+  #lagoon_client=$(printf "%s\n" "${lagoon_clients[@]}" | "${LSSHMENU[@]}")
+
   lagoon_client=`printf "${lagoon_clients}" | fzf`
   lagoon_env=`printf "${lagoon_envs}" | fzf`
 
@@ -469,6 +636,7 @@ function lagoonsshfunction() {
   if [[ -n "${lagoon_projects['$lagoon_client']}" ]]; then
     echo "Connecting to lagoon: ${lagoon_projects['$lagoon_client']}-${display_env}"
     echo "lagoon ssh --project ${lagoon_projects['$lagoon_client']} --environment ${environment}"
+    echo "Drush: ./vendor/drush/drush/drush"
     lagoon ssh --project $lagoon_projects['$lagoon_client'] --environment $environment && return;
   else
     echo "Bah boouw"
@@ -903,14 +1071,29 @@ alias png2svg='png2svg-cli'
 #brew link --force --overwrite php@8.1
 # export PATH="/usr/local/opt/php@8.4/bin:$PATH"
 # export PATH="/usr/local/opt/php@8.4/Sbin:$PATH"
-
+export PATH="/opt/homebrew/opt/php@8.3/bin:$PATH"
+export PATH="/opt/homebrew/opt/php@8.3/sbin:$PATH"
 
 # brew link --force --overwrite php@8.2
 # brew services start php@8.2
 export PATH="/usr/local/opt/php/bin:$PATH"
 export PATH="/usr/local/opt/php/sbin:$PATH"
 export PATH="/Users/bevan/dotfiles/sd/usr/local/bin:$PATH"
+export PATH="/Applications/VSCodium.app/Contents/Resources/app/bin:$PATH"
 export XDEBUG_SESSION=VSCODIUM
+
+GOVCMS_TOKEN='glpat-etMT1VZumyeB6G99u-4T'
+#echo "$GOVCMS_TOKEN" | docker login gitlab-registry-production.govcms.amazee.io -u bevan.holman --password-stdin
+# docker login gitlab-registry-production.govcms.amazee.io -u bevan.holman
+# docker login registry-1.docker.io -u doghousefetch
+
+export NVM_DIR="$HOME/.nvm"
+  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
+  [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+
+eval "$(/Users/bevan/.lando/bin/lando shellenv)"
+
+
 # RUBY_CFLAGS="-Wno-error=implicit-function-declaration"
 #eval "$(fastly --completion-script-zsh)"
 # brew services restart ph
@@ -919,3 +1102,13 @@ export XDEBUG_SESSION=VSCODIUM
 #
 #export PATH="/usr/local/bin:$PATH"
 #brew services start php
+
+
+
+typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
+
+
+
+
+
+

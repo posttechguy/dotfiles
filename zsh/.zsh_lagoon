@@ -40,10 +40,12 @@ lagoon_projects['stb']='dtwd-stb-d7-2016'
 lagoon_projects['tafewa']='dtwd-tafewa-drupal'
 lagoon_projects['think']='afp-think-u-know-drupal'
 lagoon_projects['vcat']='vcat-website-drupal8-2020'
+lagoon_projects['rdrv']='vcat-rdrv-districtcms'
 lagoon_projects['wata']='dtwd-wata-d7-2016'
 lagoon_projects['port']='port-authority-nsw-districtcms'
 lagoon_projects['fulltime']='dtwd-fulltime-courses-guide'
+lagoon_projects['prov']='prov-drupal'
 
-lagoon_clients=`echo "accce afp apgml analytics captivate ccvbackend ccvfrontend ccvmedia cg clean core crt defence demos dpn dtwd ev fulltime geojson gosnells integrator jswa lagoon-scripts laundy lotto mcc migration missing muresk nmt nrt port rfm sbdc smt solotel srt starterkit stb tafewa think vcat wata" | tr ' ' '\n'`;
+lagoon_clients=`echo "accce afp apgml analytics captivate ccvbackend ccvfrontend ccvmedia cg clean core crt defence demos dpn dtwd ev fulltime geojson gosnells integrator jswa lagoon-scripts laundy lotto mcc migration missing muresk nmt nrt port prov rdrv rfm sbdc smt solotel srt starterkit stb tafewa think vcat wata" | tr ' ' '\n'`;
 lagoon_envs=`echo "staging production development" | tr ' ' '\n'`;
 

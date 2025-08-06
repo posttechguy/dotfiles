@@ -125,3 +125,5 @@ export COMPOSER_MEMORY_LIMIT=-1a
 
 source ~/dotfiles/zsh/.zsh_aliases
 
+export PATH="/Users/bevan/.lando/bin:$PATH"; #landopath
+

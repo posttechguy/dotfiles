@@ -1,0 +1,3 @@
+#!/bin/zsh
+
+awk -F',' 'NR>1 { sum += $3 } END { print sum }' /Users/bevan/Timesheets/2025/07-July/Jira-Import-W28-2025-07-08.csv
