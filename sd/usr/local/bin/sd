@@ -6,6 +6,7 @@ distcore_releases['1.19.2']='DISTCORE-2132'
 distcore_releases['1.20']='DISTCORE-1925'
 distcore_releases['1.20.1']='DISTCORE-2324'
 distcore_releases['1.21']='DISTCORE-2202'
+distcore_releases['1.22']='DISTCORE-2413'
 
 save_sd_value() {
   local key="$1"
@@ -261,7 +262,7 @@ clients=(
     "WNRM" 
     "Zendesk" 
 );
-zendesks=("Nillumbik" "Murrindindi" "ANC3D" "Productivity Commission" "Capire" "CFA");
+zendesks=("Nillumbik" "Murrindindi" "ANC3D" "Productivity Commission" "Capire" "CFA" "Logan" "NDIA");
 #dc_releases=("1.19.2" "1.20" "1.20.1" "1.21");
 dc_releases=(${(k)distcore_releases})
 
@@ -311,7 +312,7 @@ comments=(
     "Triage" 
     "WIP"
 );
-comms=("with no one" "with the team" "with the client" "with the team and client")
+comms=("with no one" "with the team" "with the client" "with the team and client" "with the infrastructure provider")
 
 
 # Multiple patterns - none found
