@@ -15,20 +15,13 @@ alias manningham='$REMOTE_SITES_DIRECTORY/manningham && pwd -P; echo "lando star
 alias nhpo='$REMOTE_SITES_DIRECTORY/nhpo && pwd -P; echo "pygmy up && ahoy up | ahoy stop && pygmy stop" && echo "ahoy refresh-db" && echo "ahoy drush uublk mAzEFdsaVXCaWKOQ && ahoy drush uli" && echo "http://nhpo.docker.amazee.io/"'
 alias nba='$REMOTE_SITES_DIRECTORY/nba && pwd -P; echo "pygmy up && ahoy up | ahoy stop && pygmy stop" && echo "ahoy refresh-db" && echo "ahoy drush uublk qwCTwemApXmWxGor && ahoy drush uli" && echo "http://nba.docker.amazee.io/"'
 
-
 alias afp-news='$REMOTE_SITES_DIRECTORY/afp--act-policing-news && pwd -P; echo "lando start | lando poweroff" && echo "lando db-import afp--act-policing-news.sql.gz" && echo "lando build"'
 alias afp-policing='$REMOTE_SITES_DIRECTORY/afp--act-policing && pwd -P; echo "lando start | lando poweroff" && echo "lando db-import afp--act-policing-news.sql.gz" && echo "lando build"'
-
 
 alias esc='$REMOTE_SITES_DIRECTORY/esc/ && pwd -P; echo "lando start | lando poweroff"'
 alias wheatbelt='$REMOTE_SITES_DIRECTORY/wheatbelt/ && pwd -P; echo "lando start | lando poweroff"'
 alias afp='$REMOTE_SITES_DIRECTORY/afp/ && pwd -P; echo "lando start | lando poweroff"'
 alias vcat='$REMOTE_SITES_DIRECTORY/vcat/ && pwd -P; echo "lando start | lando poweroff"'
 
-
 alias agency='$REMOTE_SITES_DIRECTORY/doghouse/agency && pwd -P; echo "lando start | lando poweroff"'
-alias dockerimage='/Users/bevan/Code/docker-image-pipelines-build && pwd -P'
-
-### Lando
-alias dct='/Users/bevan/Code/dct && pwd -P; echo "lando start | lando poweroff"'
-alias vouchers='~/Documents/Clients/mhfa/vouchers'
+alias dockerimage='/Users/bholman/Code/docker-image-pipelines-build && pwd -P'

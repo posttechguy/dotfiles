@@ -1,5 +1,5 @@
 # ZSH Aliases
-SITES_DIRECTORY="/Users/bevan/Sites"
+SITES_DIRECTORY="/Volumes/T7/Containers/www"
 
 source ~/dotfiles/zsh/.zsh_lagoon
 
@@ -44,7 +44,6 @@ cprint() {
   echo "\033[${code}m$*\033[0m"
 }
 
-
 alias please='sudo'
 alias screenshots='defaults write com.apple.screencapture location ~/Screenshots/'
 alias flushdns='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
@@ -59,14 +58,15 @@ alias rsync='/usr/local/bin/rsync'
 alias hist='history'
 alias aliases='alias | grep $1'
 alias lnado='lando'
-alias dumps='/Users/bevan/Dumps && ll'
+alias dumps='/Users/$USER/Dumps && ll'
 alias CodeDir=' ~/Code && ll'
+alias office='/Users/$USER/Code/office-task-delegator'
 alias Sites='~/Sites/ && ll'
 alias Devkits='~/Devkits/ && ll'
 alias clients='~/Documents/clients'
-alias sublpackages='subl /Users/bevan/Library/Application\ Support/Sublime\ Text\ 3/Packages/Paste\ Without\ NewLines'
-alias sshconfig='subl /Users/bevan/.ssh/config'
-alias sshknown='subl /Users/bevan/.ssh/known_hosts'
+alias sublpackages='subl /Users/$USER/Library/Application\ Support/Sublime\ Text\ 3/Packages/Paste\ Without\ NewLines'
+alias sshconfig='subl /Users/$USER/.ssh/config'
+alias sshknown='subl /Users/$USER/.ssh/known_hosts'
 alias hosts='subl /etc/hosts'
 alias phps='/Applications/PhpStorm.app/Contents/MacOS/phpstorm'
 alias asdasdasdasd='sed '1,$1d' $2 > $3'
@@ -77,15 +77,129 @@ alias rmddirs='rm -rf modules profiles sites themes'
 alias findd='find . -type d -name $1'
 alias eject='diskutil unmount  disk2s1'
 alias c='codium'
-alias cli='/Users/bevan/Clients'
+alias cli='/Users/$USER/Clients'
 alias sdbash='cd ~/dotfiles/sd && codium .'
+alias only='open -a "ONLYOFFICE" $1'
+alias cursorcache='cd ~/Library/Application\ Support/Cursor/User/workspaceStorage && rm -rf * && cd -'
 
 function validcertfunc() {
   echo | openssl s_client -showcerts -servername $1 -connect $1:443 2>/dev/null | openssl x509 -inform pem -noout -text | grep 'Not After' | sed -e 's/^.*:\ //g'
 }
 alias  validcert=validcertfunc
 
-#alias lsup='cd ~/Code/doghouse-lagoon-scripts && git pull && ./project stop && ./project build && ./project start && ./project use'
+
+
+function showtimefunc() {
+
+  fd=$(date +%Y-%m-%d); # 2019-06-28
+  md=$(date +%m-%B);    # 06-June
+  yd=$(date +%Y);       # 2019
+  #wd=$(date +%U);       # W15
+  wd=$((10#$(date +%U) + 1))
+
+  history_root="/Users/${USER}/Documents/History";
+  LOG_FILE="/Users/${USER}/Timesheets/${yd}/${md}/Jira-Import-W${wd}-${fd}.csv";
+  ruddr=$(awk -F',' '{ ruddr += $3 } END { print ruddr }' ${history_root}/ruddr.md)
+  ruddr_printed=$(echo "scale=2; $ruddr" | bc)
+  sum=$(awk -F',' 'NR > 1 { sum += $3 } END { print sum }' ${LOG_FILE})
+  sum_printed=$(echo "scale=2; $sum" | bc)
+  saved_time=$(echo "scale=2; ${ruddr_printed} + ${sum_printed}" | bc)
+  echo   "|------------------|------|"
+  printf "| Saved time:      | %.2f |\n" "$saved_time"
+  printf "| Ruddr:           | %.2f |\n" "$ruddr_printed"
+  catchup_time=$(echo "scale=2; 7.60 - ${ruddr_printed} - ${sum_printed}" | bc)
+  cprint red "|------------------|------|"
+  printf "| Time to catchup: | %.2f |\n" "$catchup_time"
+  echo   "|------------------|------|"
+}
+alias  showtime=showtimefunc
+
+function ruddrfunc() {
+
+  dd=$(date +%a);
+  history_root="/Users/${USER}/Documents/History";
+  ruddr=$(awk -F',' '{ ruddr += $3 } END { print ruddr }' ${history_root}/ruddr-${dd}.md)
+  ruddr_printed=$(echo "scale=2; $ruddr" | bc)
+  echo   "|------------------|------|"
+  printf "| Ruddr:           | %.2f |\n" "$ruddr_printed"
+  echo   "|------------------|------|"
+}
+alias  ruddr=ruddrfunc
+
+function thisweekfunc() {
+
+  sum_total=0
+  ruddr_total=0
+
+  history_root="/Users/${USER}/Documents/History";
+
+  for i in {0..4}; do
+    dd=$(date -v-mon -v+"$i"d "+%a")
+    fd=$(date -v-mon -v+"$i"d "+%Y-%m-%d")
+    md=$(date -v-mon -v+"$i"d "+%m-%B")
+    yd=$(date -v-mon -v+"$i"d "+%Y")
+    wd=$((10#$(date +%U) + 1))
+
+   #     CURRENT_DATE=$(date -v-mon -v+"$i"d "$DATE_FORMAT")
+    LOG_FILE="/Users/${USER}/Timesheets/${yd}/${md}/Jira-Import-W${wd}-${fd}.csv";
+
+    if [[ -f "$LOG_FILE" ]]; then
+      sum=$(awk -F',' 'NR > 1 { sum += $3 } END { print sum }' ${LOG_FILE})
+    fi
+
+    ruddr=$(awk -F',' '{ ruddr += $3 } END { print ruddr }' ${history_root}/ruddr-${dd}.md)
+
+    sum_total=$(( sum_total + sum ))
+    ruddr_total=$(( ruddr_total + ruddr ))
+
+  done
+  sum_printed=$(echo "scale=2; $sum_total" | bc)
+  ruddr_printed=$(echo "scale=2; $ruddr_total" | bc)
+
+  total=$(( sum_printed + ruddr_printed ))
+  total_printed=$(echo "scale=2; $total" | bc)
+  catchup_total=$(( 38.00 - total ))
+  catchup_printed=$(echo "scale=2; $catchup_total" | bc)
+
+  echo   "|------------------|-------|"
+  printf "| Week to date:    | %.2f |\n" "$total_printed"
+  echo   "|------------------|-------|"
+  printf "| Catch up:        | %.2f |\n" "$catchup_printed"
+  echo   "|------------------|-------|"
+}
+alias  thisweek=thisweekfunc
+
+
+function getlogfilefunction() {
+
+  LOG_FILE="dummy text";
+
+  fd=$(date +%Y-%m-%d); # 2019-06-28
+  md=$(date +%m-%B);    # 06-June
+  yd=$(date +%Y);       # 2019
+  wd=$((10#$(date +%U) + 1))
+
+  LOG_FILE="/Users/${USER}/Timesheets/${yd}/${md}/Jira-Import-W${wd}-${fd}.csv";
+
+  echo  "${LOG_FILE}"
+}
+alias getlogfile=getlogfilefunction
+
+
+function hasdupfunction() {
+
+  today_file=$(getlogfile)
+  has_dup_output=$(tail -n +2 ${today_file} | grep -v '•' | cut -d',' -f1 | sort | uniq -c | sort -nr | grep -v '1 ')
+
+   if [[ -z "$has_dup_output" ]]; then
+      echo "There are no duplicate entries. Hazaar!!!!"
+   else
+      echo "${has_dup_output}"
+   fi
+}
+alias hasdup=hasdupfunction
+
+#alias lsup='cd ~/Code/scripts && git pull && ./project stop && ./project build && ./project start && ./project use'
 
 ### Docker
 alias dcm='/usr/local/bin/docker-compose exec mariadb bash'
@@ -107,23 +221,24 @@ alias di="/usr/local/bin/docker images"
 
 alias top='bpytop'
 
-
 function lsupfunction() {
     cd ~/Code/doghouse-lagoon-scripts &&
-    git pull &&
-    ./project stop &&
-    ./project build &&
-    ./project start &&
-    ./project use
+    lagoon login &&
+    ./project full-rebuild
 }
 alias lsup=lsupfunction
 
-#
-
 function stupfunction() {
     ./project stop;
-    pid=$(ps aux | grep "Applications\/Docker.app" | awk  '{print $2}');
-    kill -9 $pid;
+    pids=$(ps aux | grep "Applications\/Docker.app" | awk  '{print $2}');
+
+    # Loop through each PID and kill it if it's valid
+    for pid in $pids; do
+      if kill -0 $pid 2>/dev/null; then  # Check if the PID exists
+        kill $pid
+      fi
+    done
+
     return;
 }
 alias stup=stupfunction
@@ -219,7 +334,7 @@ function gzfunc() {
 alias gz=gzfunc
 
 function reportingfunc() {
-  cd /Users/bevan/Documents/Reporting
+  cd /Users/$USER/Documents/Reporting
   find . -type f -exec sed -i -e "s/$1/$2/g" {} \;
   rm *-e
 }
@@ -250,8 +365,6 @@ alias zippass='zip -er $2 $1'
 # tar czf ~/www_backups/$(date +%Y%m%d-%H%M%S).tar.gz .
 # This will create a file named something like 20120902-185558.tar.gz.
 
-
-
 alias staging='git fetch origin staging && git checkout staging && git reset --hard remotes/origin/staging && git pull origin staging'
 alias production='git checkout production'
 alias uat='git checkout uat && git pull origin uat'
@@ -280,12 +393,23 @@ alias mvgx=mvgxfunction
 
 FASTLY_KEY="bwttvSgpGieZvsfYijCj1LtLFGzTI0D_"
 
-function fastlypurgefunction() {
+# Usage :
+# Staging sites need the basic auth added
+# $ purgeurl https://afp-missing-persons-districtcms:afp-missing-persons-districtcms@staging.afp-missing-persons-districtcms.doghouse.cloud
+# Production sites are just the URL
+# $ purgeurl https://www.rdrv.vic.gov.au/
+
+function purgeurlfunction() {
 
   curl -XPURGE -H Fastly-Key:$FASTLY_KEY $1
 
 }
-alias fp=fastlypurgefunction
+alias purgeurl=purgeurlfunction
+
+# Staging sites need the basic auth added
+# $ purgedomain staging.afp-missing-persons-districtcms.doghouse.cloud afp-missing-persons-districtcms:afp-missing-persons-districtcms
+# Production sites are just the URL
+# $ purgedomain www.rdrv.vic.gov.au
 
 function purgedomainfunction() {
 
@@ -298,7 +422,7 @@ function purgedomainfunction() {
   curl -sXPOST https://api.fastly.com/service/0VfjtEv26MEnPZwvF4qtZO/purge/$basic_auth$1 -H "Fastly-Key:$FASTLY_KEY"
 
 }
-alias pd=purgedomainfunction
+alias purgedomain=purgedomainfunction
 
 function cachedomainfunction() {
 
@@ -358,7 +482,7 @@ function cleangitfunction() {
 alias cleangit=cleangitfunction
 
 alias lush='php artisan '
-alias valeterror='tail -f /Users/bevan/.config/valet/Log/nginx-error.log'
+alias valeterror='tail -f /Users/$USER/.config/valet/Log/nginx-error.log'
 # alias valetnginxconf='vim /usr/local/etc/nginx/nginx.conf'
 
 function llogfunction() {
@@ -376,10 +500,10 @@ function routelistfunction {
 alias routelist=routelistfunction
 
 function washsqlfunction {
-    sed -i -e 's/https://www\.$1\.com\.au/http://www\.$1\.com\.au/g' /Users/bevan/dumps/$2
-    sed -i -e 's/https://$1\.com\.au/http://www\.$1\.com\.au/g' /Users/bevan/dumps/$2
-    sed -i -e 's/www\.$1\.com\.au/$1\.dhbox\.dev/g' /Users/bevan/dumps/$2
-    sed -i -e 's/$1\.com\.au/$1\.dhbox\.dev/g' /Users/bevan/dumps/$2
+    sed -i -e 's/https://www\.$1\.com\.au/http://www\.$1\.com\.au/g' /Users/$USER/dumps/$2
+    sed -i -e 's/https://$1\.com\.au/http://www\.$1\.com\.au/g' /Users/$USER/dumps/$2
+    sed -i -e 's/www\.$1\.com\.au/$1\.dhbox\.dev/g' /Users/$USER/dumps/$2
+    sed -i -e 's/$1\.com\.au/$1\.dhbox\.dev/g' /Users/$USER/dumps/$2
 }
 alias washsql=washsqlfunction
 
@@ -399,7 +523,7 @@ find . -type f -mtime +$2 -name '$1' -execdir rm -- {} \;
 }
 alias rmallfilesolderthan=rmallfilesolderthanfunction
 
-alias googledict='subl /Users/bevan/Library/Spelling/LocalDictionary'
+alias googledict='subl /Users/$USER/Library/Spelling/LocalDictionary'
 
 #cp -R ../benara.old/media/ media/
 
@@ -416,91 +540,87 @@ function mkcdirfunction ()
 }
 alias mkcdir=mkcdirfunction
 
-
-
 function inittimefunction() {
 
-    # dd=$(date -v -$1d +%d/%m/%Y); # 10/31/2019
-    # fd=$(date -v -$1d +%Y-%m-%d); # 2019-06-28
-    # md=$(date -v -$1d +%m-%B);    # 06-June
-    # yd=$(date -v -$1d +%Y);       # 2019
-    # history_root="/Users/bevan/Documents/History";
-    # templatefile="$history_root/template.log";
-    # logfile="$history_root/$yd/$md/$fd.csv";
+  fd=$(date +%Y-%m-%d); # 2019-06-28
+  md=$(date +%m-%B);    # 06-June
+  yd=$(date +%Y);       # 2019
+  #wd=$(date +%U);       # W15
+  wd=$((10#$(date +%U) + 1))
 
-    # if [ ! -d "$history_root/$yd/$md" ]; then
-    #     mkdir -p "$history_root/$yd/$md";
-    # fi
+  history_root="/Users/${USER}/Documents/History";
+  templatefile="${history_root}/default.log";
+  mdfile="${history_root}/${yd}/${md}/${fd}.md";
 
-    # echo "file:///$logfile";
-    # if [ ! -f "$logfile" ]; then
-    #     touch "$logfile";
-    #     chmod 777 "$logfile";
-    # fi
+  mkdir -p "${history_root}/${yd}/${md}";
 
-    # cat "$templatefile" > "$logfile";
+  # this_day=$(date -v-mon -v+"$1"d "+%a")
 
-    fd=$(date +%Y-%m-%d); # 2019-06-28
-    md=$(date +%m-%B);    # 06-June
-    yd=$(date +%Y);       # 2019
-    #wd=$(date +%U);       # W15
-    wd=$((10#$(date +%U) + 1))
+  # if [ "${this_day}" = "Mon" ]; then
+  #   for i in {0..4}; do
+  #     dd=$(date -v-mon -v+"$i"d "+%a")
+  #     touch "${history_root}/ruddr-${dd}.md";
+  #     cat "${history_root}/ruddr-init.md" > "${history_root}/ruddr-${dd}.md";
+  #   done
+  # fi
 
-    history_root="/Users/${USER}/Documents/History";
-    templatefile="${history_root}/default.log";
-    mdfile="${history_root}/${yd}/${md}/${fd}.md";
+  if [ ! -f "${mdfile}" ]; then
+      touch "${mdfile}";
+      chmod 777 "${mdfile}";
+      cat "$templatefile" > "$mdfile";
+      current_date=$(date "+%Y-%b-%d")
+      current_day=$(date "+%A")
+      week_number=$(date +%U)
+      week_number=$((week_number + 1))
+      formatted_week=$(printf "%02d" $week_number)
+      sed -i '' "s/yyyy-mmm-dd/$current_date/g" "$mdfile"
+      sed -i '' "s/ddd/$current_day/g" "$mdfile"
+      sed -i '' "s/www/$formatted_week/g" "$mdfile"
 
-    mkdir -p "${history_root}/${yd}/${md}";
+      # touch "${history_root}/ruddr-${dd}.md";
+      # cat "${history_root}/ruddr.md" > "${history_root}/ruddr-${dd}.md";
 
-    if [ ! -f "${mdfile}" ]; then
-        touch "${mdfile}";
-        chmod 777 "${mdfile}";
-        cat "$templatefile" > "$mdfile";
-        current_date=$(date "+%Y-%b-%d")
-        current_day=$(date "+%A")
-        week_number=$(date +%U)
-        week_number=$((week_number + 1))
-        formatted_week=$(printf "%02d" $week_number)
-        sed -i '' "s/yyyy-mmm-dd/$current_date/g" "$mdfile"
-        sed -i '' "s/ddd/$current_day/g" "$mdfile"
-        sed -i '' "s/www/$formatted_week/g" "$mdfile"
+  fi
+  MD_FILE="${mdfile}"
 
-    fi
-    MD_FILE="${mdfile}"
+  timesheet_root="/Users/${USER}/Timesheets";
+  templatefile="${history_root}/timesheet.csv";
+  logfile="${timesheet_root}/${yd}/${md}/Jira-Import-W${wd}-${fd}.csv";
 
-    timesheet_root="/Users/${USER}/Timesheets";
-    templatefile="${history_root}/timesheet.csv";
-    logfile="${timesheet_root}/${yd}/${md}/Jira-Import-W${wd}-${fd}.csv";
+  mkdir -p "${timesheet_root}/${yd}/${md}";
 
-    mkdir -p "${timesheet_root}/${yd}/${md}";
+  if [ ! -f "${logfile}" ]; then
+      touch "${logfile}";
+      chmod 777 "${logfile}";
+      cat "$templatefile" > "$logfile";
+  fi
+  LOG_FILE="${logfile}"  # ✅ This is how we return a value without a subshell
 
-    if [ ! -f "${logfile}" ]; then
-        touch "${logfile}";
-        chmod 777 "${logfile}";
-        cat "$templatefile" > "$logfile";
-    fi
-    LOG_FILE="${logfile}"  # ✅ This is how we return a value without a subshell
+  # echo "MD_FILE: $MD_FILE"
+  # echo "---------------------------------------------------------------------------------------------------------------"
+  # echo "LOGFILE: $logfile"
+  # echo "---------------------------------------------------------------------------------------------------------------"
 
-echo "MD_FILE: $MD_FILE"
-echo "---------------------------------------------------------------------------------------------------------------"
-echo "LOGFILE: $logfile"
-echo "---------------------------------------------------------------------------------------------------------------"
+  cprint blue "---------------------------------------------------------------------------------------------------------------"
+  # time_elpased=$(howlong)
+  # howlong_since=$(echo "$time_elpased" | grep -oE '[0-9]+(\.[0-9]+)?' | tail -n 1)
+  echo "Ruddr file: ${history_root}/ruddr.md"
+  ruddr=$(awk -F',' '{ ruddr += $3 } END { print ruddr }' ${history_root}/ruddr.md)
+  ruddr_printed=$(echo "scale=2; $ruddr" | bc)
 
+  sum=$(awk -F',' 'NR > 1 { sum += $3 } END { print sum }' ${LOG_FILE})
+  echo "${sum}"
+  sum_printed=$(echo "scale=2; $sum" | bc)
+  saved_time=$(echo "scale=2; ${ruddr_printed} + ${sum_printed}" | bc)
+  printf "Saved time:  %.2f\n" "$saved_time"
+  printf "Ruddr:  %.2f\n" "$ruddr_printed"
+  cprint blue "---------------------------------------------------------------------------------------------------------------"
 
-echo "Ruddr file: ${history_root}/ruddr.md"
+  catchup_time=$(echo "scale=2; 7.60 - ${ruddr_printed} - ${sum_printed}" | bc)
+  cprint bold_on_red ""
+  printf "${red}Time to catchup: ${yellow}%.2f${reset}\n" "$catchup_time"
+  cprint red "---------------------------------------------------------------------------------------------------------------\n\n"
 
-ruddr=$(awk -F',' 'NR > 1 { ruddr += $2 } END { print ruddr }' ${history_root}/ruddr.md)
-ruddr_printed=$(echo "scale=2; $ruddr" | bc)
-
-sum_printed="0.00"
-saved_time=$(echo "scale=2; ${ruddr_printed} + ${sum_printed}" | bc)
-printf "Saved time:  %.2f\n" "$saved_time"
-
-echo "---------------------------------------------------------------------------------------------------------------"
-catchup_time=$(echo "scale=2; 7.60 - ${ruddr_printed} - ${sum_printed}" | bc)
-cprint bold_on_red ""
-printf "${red}Time to catchup: ${yellow}%.2f${reset}\n" "$catchup_time"
-cprint red "---------------------------------------------------------------------------------------------------------------"
 }
 alias inittime=inittimefunction
 
@@ -519,7 +639,7 @@ echo $DAY_INTERVAL;
     # fd=$(date -v -$DAY_INTERVAL +%Y-%m-%d); # 2019-06-28
     # md=$(date -v -$DAY_INTERVAL +%m-%B);    # 06-June
     # yd=$(date -v -$DAY_INTERVAL +%Y);       # 2019
-    # history_root="/Users/bevan/Documents/History";
+    # history_root="/Users/$USER/Documents/History";
     # logfile="$history_root/$yd/$md/$fd.csv";
 
     # if [ ! -d "$history_root/$yd/$md" ]; then
@@ -534,7 +654,7 @@ echo $DAY_INTERVAL;
     # echo $dd;
     # echo $logfile;
 
-    # history -E | sort -k3,3 -k2 | grep "2025-07-24" >> /Users/bevan/Documents/History/2025/07-July/2025-07-24.md
+    # history -E | sort -k3,3 -k2 | grep "22.9.2025" >> /Users/$USER/Documents/History/2025/09-Sepetember/2025-09-22.md
     # history -E | sort -k3,3 -k2 | grep "$dd" >> "$logfile";
 }
 alias gethist=gethistoryfunction
@@ -571,7 +691,7 @@ export PATH
 alias wifipassword='security find-generic-password -ga "doghouse" |grep "password:"'
 
 # BEGIN SNIPPET: Platform.sh CLI configuration
-HOME=${HOME:-'/Users/bevan'}
+HOME=${HOME:-'/Users/$USER'}
 export PATH="$HOME/"'.platformsh/bin':"$PATH"
 if [ -f "$HOME/"'.platformsh/shell-config.rc' ]; then . "$HOME/"'.platformsh/shell-config.rc'; fi # END SNIPPET
 export PATH="/usr/local/opt/php/bin:$PATH"
@@ -634,9 +754,10 @@ function lagoonsshfunction() {
   display_env=$(getlagoonenvironment "${lagoon_env}" "-")
 
   if [[ -n "${lagoon_projects['$lagoon_client']}" ]]; then
+    date
     echo "Connecting to lagoon: ${lagoon_projects['$lagoon_client']}-${display_env}"
     echo "lagoon ssh --project ${lagoon_projects['$lagoon_client']} --environment ${environment}"
-    echo "Drush: ./vendor/drush/drush/drush"
+    echo "Drush: ./vendor/drush/drush/drush uli"
     lagoon ssh --project $lagoon_projects['$lagoon_client'] --environment $environment && return;
   else
     echo "Bah boouw"
@@ -657,6 +778,7 @@ function lagoonulifunction() {
   display_env=$(getlagoonenvironment "${lagoon_env}" "-")
 
   if [[ -n "${lagoon_projects['$1']}" ]]; then
+    date
     echo "Connecting to lagoon: ${$lagoon_projects['$lagoon_client']}-${environment}"
     echo "lagoon ssh -p ${$lagoon_projects['$lagoon_client']} -e ${environment} -C $drush_command"
 
@@ -1078,20 +1200,29 @@ export PATH="/opt/homebrew/opt/php@8.3/sbin:$PATH"
 # brew services start php@8.2
 export PATH="/usr/local/opt/php/bin:$PATH"
 export PATH="/usr/local/opt/php/sbin:$PATH"
-export PATH="/Users/bevan/dotfiles/sd/usr/local/bin:$PATH"
+export PATH="/Users/$USER/dotfiles/sd/usr/local/bin:$PATH"
 export PATH="/Applications/VSCodium.app/Contents/Resources/app/bin:$PATH"
+
+# sudo ln -s "/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl" /usr/local/bin/subl
+
 export XDEBUG_SESSION=VSCODIUM
 
+
+alias jiralist='jira issue list  -s "Approved to Deploy" -s "Waiting on Client" -s "New" -s "Implementing" -s "Investigation" -s "Estimating (Product Manager)" -s "Clarification and Scoping" -s "Scheduled for Implementation" -s "Estimating (Technical)" -s "Awaiting Queueing" -s "UAT (Client)" -s "QA (Doghouse)" -s "Failed QA (Doghouse)" --columns reporter,key,summary,status,assignee,updated  --order-by reporter,updated'
+
+# jira add worklog -i <ISSUE_KEY> -t <TIME_SPENT> -c "<COMMENT>"
+
+
 GOVCMS_TOKEN='glpat-etMT1VZumyeB6G99u-4T'
-#echo "$GOVCMS_TOKEN" | docker login gitlab-registry-production.govcms.amazee.io -u bevan.holman --password-stdin
-# docker login gitlab-registry-production.govcms.amazee.io -u bevan.holman
+#echo "$GOVCMS_TOKEN" | docker login gitlab-registry-production.govcms.amazee.io -u bholman.holman --password-stdin
+# docker login gitlab-registry-production.govcms.amazee.io -u bholman.holman
 # docker login registry-1.docker.io -u doghousefetch
 
 export NVM_DIR="$HOME/.nvm"
   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
   [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
 
-eval "$(/Users/bevan/.lando/bin/lando shellenv)"
+eval "$(/Users/$USER/.lando/bin/lando shellenv)"
 
 
 # RUBY_CFLAGS="-Wno-error=implicit-function-declaration"
@@ -1103,12 +1234,7 @@ eval "$(/Users/bevan/.lando/bin/lando shellenv)"
 #export PATH="/usr/local/bin:$PATH"
 #brew services start php
 
-
-
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 
-
-
-
-
-
+source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh

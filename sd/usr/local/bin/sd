@@ -1,12 +1,12 @@
 #!/bin/zsh
 STORAGE_FILE="$HOME/.config/sd/.sd_values"
+TRIAGE_FILE="/Users/bholman/dotfiles/sd/usr/local/bin/triage.csv"
+MEETING_FILE="/Users/bholman/dotfiles/sd/usr/local/bin/meeting.csv"
 
 typeset -A -g distcore_releases
-distcore_releases['1.19.2']='DISTCORE-2132'
-distcore_releases['1.20']='DISTCORE-1925'
-distcore_releases['1.20.1']='DISTCORE-2324'
-distcore_releases['1.21']='DISTCORE-2202'
-distcore_releases['1.22']='DISTCORE-2413'
+distcore_releases[1.25]='DISTCORE-2541'
+distcore_releases[1.24]='DISTCORE-2505'
+distcore_releases[1.23]='DISTCORE-2448'
 
 save_sd_value() {
   local key="$1"
@@ -106,8 +106,6 @@ function get_comment() {
     target_seconds=$(awk "BEGIN {printf \"%.0f\", $current_seconds - ($lt * 3600)}")
     nowdatetime=$(date -r "$target_seconds" +"%d-%b-%Y %H:%M")
 
-
-
 # comment=$(get_comment "$ticket" "$comment_type" "$client" "${log_time_decimal}" "${comms_text}" "${desc}" "${zendesk}")
 
 # echo "------------------------------------------------------------------------------------------------------------------------";
@@ -127,71 +125,128 @@ function get_comment() {
     zendesks_tickets['Logan']='DISTCORE-2328'
     zendesks_tickets['NDIA']='DISTCORE-2329'
 
-    declare -A client_meeting
-    client_meeting['AFP']='SUPPORTDESK-5364'
-    client_meeting['ACCCE']='SUPPORTDESK-5913'
-    client_meeting['Missing Persons']='SUPPORTDESK-5925'
-    client_meeting['RFM']='SUPPORTDESK-5937'
-    client_meeting['Think U Know']='SUPPORTDESK-5943'
-    client_meeting['CCV']='SUPPORTDESK-5535'
-    client_meeting['DGS']='SUPPORTDESK-5479'
-    client_meeting['DPN']='SUPPORTDESK-5889'
-    client_meeting['SBDC']='SUPPORTDESK-5530'
-    client_meeting['DTWD']='SUPPORTDESK-5883'
-    client_meeting['Gosnells']='SUPPORTDESK-5484'
-    client_meeting['IPART']='SUPPORTDESK-6963'
-    client_meeting['Laundy Hotels']='SUPPORTDESK-5394'
-    client_meeting['Lottery West']='SUPPORTDESK-5859'
-    client_meeting['Manningham']='SUPPORTDESK-5248'
-    client_meeting['MHFA']='SUPPORTDESK-5907'
-    client_meeting['ESC']='SUPPORTDESK-5895'
-    client_meeting['NHPO']='SUPPORTDESK-5546'
-    client_meeting['PFD']='SUPPORTDESK-5490'
-    client_meeting['PROV']='SUPPORTDESK-5495'
-    client_meeting['Revise']='SUPPORTDESK-5865'
-    client_meeting['Solotel']='SUPPORTDESK-5572'
-    client_meeting['SCV']='SUPPORTDESK-5500'
-    client_meeting['VCAT']='SUPPORTDESK-5505'
-    client_meeting['VDWC']='SUPPORTDESK-5577'
-    client_meeting['WNRM']='SUPPORTDESK-5871'
+    # @TODO jira issue list -q "type = 'Service Request' AND summary ~ '- Meetings'" --csv > $MEETING_FILE
 
+    MEETING_FILE="/Users/bholman/dotfiles/sd/usr/local/bin/meeting.csv"
+
+    [[ -z $(find "$MEETING_FILE" -mtime -1 2>/dev/null) ]]; jira issue list -q "type = 'Service Request' AND status = 'Resolved' AND labels = 'meetings'" --csv > $MEETING_FILE
+
+    declare -A client_meeting
+
+    {
+        read  # Skip first row
+        while IFS=',' read -r TYPE KEY SUMMARY STATUS; do
+            client_prefix="${SUMMARY/ \– Meetings/}"
+            client_meeting["${client_prefix}"]="${KEY}"
+  #  echo "client_meeting['${client_prefix}']='${KEY}'"
+        done
+    } < $MEETING_FILE
+
+    # client_meeting['AFP']='SUPPORTDESK-5364'
+    # client_meeting['AFP ACCC']='SUPPORTDESK-5913'
+    # client_meeting['AFP Missing Persons']='SUPPORTDESK-5925'
+    # client_meeting['AFP Reserves-Former Member']='SUPPORTDESK-5937'
+    # client_meeting['AFP ThinkUKnow']='SUPPORTDESK-5943'
+    # client_meeting['County Court Victoria']='SUPPORTDESK-5535'
+    # client_meeting['DGS Engage Victoria']='SUPPORTDESK-5479'
+    # client_meeting['SBDC']='SUPPORTDESK-5530'
+    # client_meeting['DTWD']='SUPPORTDESK-5883'
+    # client_meeting['Gosnells']='SUPPORTDESK-5484'
+    # client_meeting['IPART']='SUPPORTDESK-6963'
+    # client_meeting['Laundy Hotels']='SUPPORTDESK-5394'
+    # client_meeting['Lotterywest']='SUPPORTDESK-5859'
+    # client_meeting['Manningham']='SUPPORTDESK-5248'
+    # client_meeting['ESC']='SUPPORTDESK-5895'
+    # client_meeting['NHPO']='SUPPORTDESK-5546'
+    # client_meeting['PFD']='SUPPORTDESK-5490'
+    # client_meeting['PROV']='SUPPORTDESK-5495'
+    # client_meeting['ReviseOnline']='SUPPORTDESK-5865'
+    # client_meeting['Supreme Court']='SUPPORTDESK-5500'
+    # client_meeting['VCAT']='SUPPORTDESK-5505'
+    # client_meeting['VDWC']='SUPPORTDESK-5577'
+    # client_meeting['Wheatbelt']='SUPPORTDESK-5871'
+    # client_meeting['RDRV (VCAT)']='SUPPORTDESK-7138'
+    # client_meeting['Port Authority NSW']='SUPPORTDESK-7118'
+    # client_meeting['PFD']='SUPPORTDESK-7220'
+
+#     # @TODO jira issue list -q "type = 'Service Request' AND summary ~ '- Triage'" --csv > ~/dotfiles/sd/usr/local/bin/triage.csv
+#     [[ -z $(find "$TRIAGE_FILE" -mtime -1 2>/dev/null) ]]; jira issue list -q "type = 'Service Request' AND status = 'Resolved' AND labels = 'triage'" --csv > $TRIAGE_FILE
+
+#     declare -A triage_ticket
+
+#     {
+#         read  # Skip first row
+#         while IFS=',' read -r TYPE KEY SUMMARY STATUS; do
+#             triage_prefix="${SUMMARY/ \– Triage/}"
+#             triage_ticket["${triage_prefix}"]="${KEY}"
+#   #  echo "client_meeting['${client_prefix}']='${KEY}'"
+#         done
+#     } < $TRIAGE_FILE
+
+    declare -A triage_ticket
+    triage_ticket['AFP']='SUPPORTDESK-5365'
+    triage_ticket['AFP ACCC']='SUPPORTDESK-5912'
+    triage_ticket['AFP Missing Persons']='SUPPORTDESK-5924'
+    triage_ticket['AFP Reserves-Former Member']='SUPPORTDESK-5936'
+    triage_ticket['AFP ThinkUKnow']='SUPPORTDESK-5942'
+    triage_ticket['County Court Victoria']='SUPPORTDESK-5536'
+    triage_ticket['DGS Engage Victoria']='SUPPORTDESK-5480'
+    triage_ticket['DTWD']='SUPPORTDESK-5882'
+    triage_ticket['ESC']='SUPPORTDESK-5894'
+    triage_ticket['Gosnells']='SUPPORTDESK-5485'
+    triage_ticket['IPART']='SUPPORTDESK-7257'
+    triage_ticket['Laundy Hotels']='SUPPORTDESK-5395'
+    triage_ticket['Lotterywest']='SUPPORTDESK-5858'
+    triage_ticket['Manningham']='SUPPORTDESK-5234'
+    triage_ticket['NHPO']='SUPPORTDESK-5547'
+    triage_ticket['PFD']='SUPPORTDESK-7261'
+    triage_ticket['Port Authority NSW']='SUPPORTDESK-7260'
+    triage_ticket['PROV']='SUPPORTDESK-5496'
+    triage_ticket['RDRV (VCAT)']='SUPPORTDESK-7259'
+    triage_ticket['ReviseOnline']='SUPPORTDESK-5864'
+    triage_ticket['SBDC']='SUPPORTDESK-5531'
+    triage_ticket['Supreme Court']='SUPPORTDESK-5501'
+    triage_ticket['VCAT']='SUPPORTDESK-5506'
+    triage_ticket['VDWC']='SUPPORTDESK-5578'
+    triage_ticket['Wheatbelt']='SUPPORTDESK-5870'
+
+    desc_trimmed=$(echo "$desc" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    bulletized=${desc_trimmed//$'\n'/$'\n• '}
+#    bulletized=${desc}
     if [ "$c" = "Zendesk" ]; then
-        comment="${zendesks_tickets['$desk']},${nowdatetime},${lt},\"${c} ZenDesk ${c_ticket} Triage${desc}${cm}\""
-    # elif [ "$c" = "DISTCORE" ]; then
-    #     comment="${distcore_releases['$dcr']},${nowdatetime},${lt},\"DISTCORE QA\n${c_ticket}${cm}\""
+        comment="${zendesks_tickets['$desk']},${nowdatetime},${lt},\"--- ${c} ZenDesk ${c_ticket} Triage${bulletized}${cm}\""
+    elif [ "$c" = "DISTCORE" ]; then
+        comment="${distcore_releases[$dcr]},${nowdatetime},${lt},\"DISTCORE QA\n• ${c_ticket}${cm}\""
     else
         case $q in
             # Special cases
             ("Client meeting")
-                comment="${client_meeting['$c']},${nowdatetime},${lt},\"Client meeting - ${c}\""
+                comment="${client_meeting['$c']},${nowdatetime},${lt},\"--- ${c} Client meeting\""
                 ;;
             (Perform)
-                comment="${c_ticket},${nowdatetime},${lt},Perform:\"${desc}${cm}\""
+                comment="${c_ticket},${nowdatetime},${lt},\" --- ${bulletized}${cm}\""
                 ;;
             (Pre-release)
-                comment="${c_ticket},${nowdatetime},${lt},\"${c} Pre-release notes\nSchedule\nSmoke tests${cm}\""
+                comment="${c_ticket},${nowdatetime},${lt},\"--- ${c} Pre-release\n• Schedule\n• Initialise release notes\n• PR request${cm}\""
+                ;;
+            ("Pre-release - add ticket")
+                comment="${c_ticket},${nowdatetime},${lt},\"--- ${c} Pre-release\n• Update release notes\n• Add another ticket${cm}\""
                 ;;
             (Release)
-                comment="${c_ticket},${nowdatetime},${lt},\"${c} Release notes\nDeploy to production\nSmoke testing${cm}\""
+                comment="${c_ticket},${nowdatetime},${lt},\"--- ${c} Release\n• DB backup\n• Deploy to production\n• Smoke testing\n• Finalise release notes${cm}\""
                 ;;
             ("In person communication")
-                comment="${c_ticket},${nowdatetime},${lt},\"${c}${desc}\""
-                ;;
-            (DISTCORE)
-                comment="${distcore_releases['$dcr']},${nowdatetime},${lt},\"${c_ticket} QA\n${cm}\""
+                comment="${c_ticket},${nowdatetime},${lt},\"--- ${c}${bulletized}\""
                 ;;
             ("DISTCMS")
-                comment="${c_ticket},${nowdatetime},${lt},\"QA\n${c}${cm}\""
+                comment="${c_ticket},${nowdatetime},${lt},\"--- ${c} QA${cm}\""
                 ;;
             (Triage)
-                if [ -n "$desc" ]; then
-                    desc=" - ${desc}"
-                fi
-                comment="${c_ticket},${nowdatetime},${lt},\"${c} Triage${desc}${cm}\""
+                comment="${triage_ticket['$c']},${nowdatetime},${lt},\"--- ${c} Queue Sweep${bulletized}${cm}\""
                 ;;
             (*)
                 # Default 
-                comment="${c_ticket},${nowdatetime},${lt},\"${c} ${q}${desc}${cm}\""
+                comment="${c_ticket},${nowdatetime},${lt},\"--- ${c} ${q}${bulletized}${cm}\""
                 ;;
         esac
     fi
@@ -203,7 +258,7 @@ build_fmenu() {
   local title="$1"
 
   FMENU=(
-    fzf
+    fzf -i
     --layout=reverse
     --exact
     --border=bold
@@ -223,51 +278,51 @@ MD_FILE=""
 LOG_FILE=""
 
 ticket="${1}";
+#ticket=$(echo "" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
 clients=(
-    "ACCCE" 
-    "AFP" 
-    "APGML" 
-    "APGML" 
-    "APO" 
-    "CCV" 
-    "DGS" 
+    "AFP"
+    "AFP ACCCE"
+    "AFP APGML"
+    "AFP Missing Persons"
+    "AFP Reserves-Former Member"
+    "AFP ThinkUKnow"
+    "County Court Victoria"
+    "DGS Engage Victoria"
+    "Doghouse"
+    "DTWD"
+    "ESC"
+    "ESS"
+    "Gosnells"
+    "Impressions Furniture"
+    "IPART"
+    "Just Auto"
+    "Laundy Hotels"
+    "Lotterywest"
+    "Manningham"
+    "MHFA"
+    "NBA"
+    "NHPO"
+    "PFD"
+    "Port Authority NSW"
+    "PROV"
+    "RDRV (VCAT)"
+    "ReviseOnline"
+    "SBDC"
+    "Solotel"
+    "Supreme Court"
+    "VCAT"
+    "VDWC"
+    "Wheatbelt"
     "DISD" 
     "DISTCORE"
     "DISTCMS" 
-    "Doghouse" 
-    "DPN" 
-    "DTWD" 
-    "ESC" 
-    "ESS"
-    "Gosnells"
-    "IPART"
-    "Laundy" 
-    "Lottery West" 
-    "MCC" 
-    "Missing Persons" 
-    "NHPO" 
     "PAN" 
-    "PFD" 
-    "Port Authority NSW" 
-    "PROV" 
-    "RDRV" 
-    "Revise" 
-    "RFM" 
-    "SBDC" 
-    "SCV" 
-    "Solotel" 
-    "Think U Know" 
-    "VCAT" 
-    "VDWC" 
-    "WNRM" 
-    "Zendesk" 
+    "Zendesk"
+    "NDIS"
 );
 zendesks=("Nillumbik" "Murrindindi" "ANC3D" "Productivity Commission" "Capire" "CFA" "Logan" "NDIA");
-#dc_releases=("1.19.2" "1.20" "1.20.1" "1.21");
 dc_releases=(${(k)distcore_releases})
-
-
-#dc_releases=("${!distcore_releases[@]}") 
 
 comments=(
     "Acceptance criteria" 
@@ -298,6 +353,7 @@ comments=(
     "Perform" 
     "PR" 
     "Pre-release" 
+    "Pre-release - add ticket" 
     "QA" 
     "Queue Sweep"
     "Release" 
@@ -311,6 +367,11 @@ comments=(
     "Transfer to CI project"
     "Triage" 
     "WIP"
+    "GovCMS Support ticket"
+    "Handover"
+    "Backup Assets"
+    "Build webform"
+    "Queue for implementation"
 );
 comms=("with no one" "with the team" "with the client" "with the team and client" "with the infrastructure provider")
 
@@ -387,6 +448,7 @@ MD_FILE="${mdfile}"
 timesheet_root="/Users/${USER}/Timesheets";
 templatefile="${history_root}/timesheet.csv";
 logfile="${timesheet_root}/${yd}/${md}/Jira-Import-W${wd}-${fd}.csv";
+logdir="${timesheet_root}/${yd}/${md}";
 
 mkdir -p "${timesheet_root}/${yd}/${md}";
 
@@ -412,28 +474,25 @@ white="\033[37"
 reset="\033[0m"
 cprint red "---------------------------------------------------------------------------------------------------------------${reset}"
 date 
-cprint white "---------------------------------------------------------------------------------------------------------------"
-
 zendesk="";
 
 #if printf $clients | grep -qs $client; then
 if [ -n "$client" ]; then
     # all good
-    save_value "${ticket}" "${client}"
+    save_sd_value "${ticket}" "${client}"
 
     if [ "$client" = "Zendesk" ]; then
         build_fmenu "SUPPORT DESK — Choose a DISTRICT CORE client: "
         zendesk=$(printf "%s\n" "${zendesks[@]}" | "${FMENU[@]}")
     echo $zendesk;
     fi
-    echo "Ticket: ${ticket}"
-
-   # if [ "$client" = "DISTCORE" ]; then
+    cprint yellow "Ticket: ${ticket}"
 
     if [[ "${ticket}" =~ "DISTCORE" ]]; then
         build_fmenu "SUPPORT DESK — Choose a DISTCORE Release: "
         dc_release=$(printf "%s\n" "${dc_releases[@]}" | "${FMENU[@]}")
-    echo $dc_release;
+    echo "dc release: ${dc_release}";
+
     fi
 else
     echo "Failed to get a client";
@@ -441,37 +500,42 @@ else
 fi
 
 build_fmenu "SUPPORT DESK — Choose what task you performed: "
-comment_type=$(printf "%s\n" "${comments[@]}" | "${FMENU[@]}")
 
+if [ "$ticket" != "triage" ] && [ "$ticket" != "Triage" ]; then
+    comment_type=$(printf "%s\n" "${comments[@]}" | "${FMENU[@]}")
+else 
+    if [ "$ticket" != "client" ]; then
+        comment_type="Triage"
+    else 
+        comment_type="Client meeting"
+    fi
+fi
 
 desc_desc="";
 
 if [ -n "$comment_type" ]; then
     if [ "$comment_type" = "Triage" ] || 
+    [ "$comment_type" = "Client meeting" ] || 
+    [ "$comment_type" = "Followup" ] || 
     [ "$comment_type" = "QA" ] || 
     [ "$comment_type" = "Perform" ] || 
     [ "$comment_type" = "Access" ] || 
+    [ "$comment_type" = "Investigate" ] || 
     [ "$comment_type" = "In person communication" ] || 
+    [ "$comment_type" = "Pre-release - add ticket" ] || 
     [ "$comment_type" = "Create a ticket on behalf of the client" ]; then
-        echo "Additional text for description: ";
-        read desc_desc;
-    #   desc_desc=$(rlwrap -S "Additional text for description: " -o cat)
-       #desc_desc=$(rlwrap -S "Additional text for description: " -H /dev/null cat)
-
-#   For more complex interactive scripts, consider using a full-featured terminal UI library like dialog, whiptail, or even Python's curses library wrapped in a bash script for better terminal control.
-
-       echo "This is what you typed as a description: $desc_desc";
+        vared -p 'Additional text for description: ' -c what_was_input
+        desc_desc="${what_was_input//|/$'\n• '}"
+        desc_desc="${desc_desc//•• /$'• '}"
     fi
 else
     echo "Failed to get a ticket type";
     exit
 fi
-echo "Desc: $desc_desc"
 
 if [ "$comment_type" != "Initial response" ] || [ "$comment_type" != "Client meeting" ]; then
     # Prompt user for input
-    echo "Enter log time (e.g., '1h 30m'):"
-    read log_time
+    vared -p "Enter log time (e.g., '1h 30m'):" -c log_time
 
     # Check if input is empty
     if [[ -z "$log_time" ]]; then
@@ -480,58 +544,57 @@ if [ "$comment_type" != "Initial response" ] || [ "$comment_type" != "Client mee
     fi
 
     comms_text=""
-    #comm=`printf "${comms}" | fzf`
     build_fmenu "SUPPORT DESK — Choose with whom you commuicated with:"
     comm=$(printf "%s\n" "${comms[@]}" | "${FMENU[@]}")
-
     comms_text=""
 
     #if printf $comms | grep -qs $comm; then
     if [ -n "$comm" ]; then
-        comms_text="\nCommunication ${comm}"
+        comms_text="\n• Communication ${comm}"
     else
         echo "Failed to get a communications";
         exit
     fi
-    if [ "$comms_text" = "\nCommunication with no one" ]; then
+    if [ "$comms_text" = "\n• Communication with no one" ]; then
         comms_text=""
     fi
 else
     log_time="15m"
-    comms_text="\nCommunication with the team and client"
+    comms_text="\n• Communication with the team and client"
 fi
 
 # Call the function with the user input
 log_time_decimal=$(get_log_time "$log_time")
-# echo "Decimal time for '$log_time' is: $log_time_decimal"
 
-echo "$ticket: $comment_type $client ${log_time_decimal} ${comms_text}"
-
+# echo "$ticket:  $comment_type $client ${log_time_decimal} ${comms_text} ${desc_desc} ${zendesk} ${dc_release}"
 #                        $1           #2           $3             $4                  $5             $6             $7             $8
 comment=$(get_comment "$ticket" "$comment_type" "$client" "${log_time_decimal}" "${comms_text}" "${desc_desc}" "${zendesk}" "${dc_release}")
-comment_spreadsheet=$(echo "$comment" | tr '\n' '|')
+comment_spreadsheet=$(echo "$comment" | tr '\n' '•')
 comment_spreadsheet="${comment_spreadsheet::-1} "
 
 echo "${comment}" >> "${LOG_FILE}"
-echo "Comment: ${comment}"
+cprint green "---------------------------------------------------------------------------------------------------------------"
+echo "Worklog Data: ${comment}"
+cprint green "---------------------------------------------------------------------------------------------------------------"
 echo "${comment_spreadsheet}" >> "${MD_FILE}"
 echo "Go to file:///${LOG_FILE}"
-echo "---------------------------------------------------------------------------------------------------------------"
+
+cprint blue "---------------------------------------------------------------------------------------------------------------"
 # time_elpased=$(howlong)
 # howlong_since=$(echo "$time_elpased" | grep -oE '[0-9]+(\.[0-9]+)?' | tail -n 1)
 
-echo "Ruddr file: ${history_root}/ruddr.md"
-
-ruddr=$(awk -F',' 'NR > 1 { ruddr += $2 } END { print ruddr }' ${history_root}/ruddr.md)
+dd=$(date +%a);
+echo "Ruddr file: ${history_root}/ruddr-${dd}.md"
+ruddr=$(awk -F',' '{ ruddr += $3 } END { print ruddr }' ${history_root}/ruddr-${dd}.md)
 ruddr_printed=$(echo "scale=2; $ruddr" | bc)
 sum=$(awk -F',' 'NR > 1 { sum += $3 } END { print sum }' ${LOG_FILE})
 sum_printed=$(echo "scale=2; $sum" | bc)
 saved_time=$(echo "scale=2; ${ruddr_printed} + ${sum_printed}" | bc)
 printf "Saved time:  %.2f\n" "$saved_time" 
 printf "Ruddr:  %.2f\n" "$ruddr_printed" 
+cprint blue "---------------------------------------------------------------------------------------------------------------"
 
-echo "---------------------------------------------------------------------------------------------------------------"
 catchup_time=$(echo "scale=2; 7.60 - ${ruddr_printed} - ${sum_printed}" | bc)
 cprint bold_on_red ""
 printf "${red}Time to catchup: ${yellow}%.2f${reset}\n" "$catchup_time" 
-cprint red "---------------------------------------------------------------------------------------------------------------"
+cprint red "---------------------------------------------------------------------------------------------------------------\n\n"

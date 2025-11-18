@@ -1,3 +1,163 @@
 #!/bin/zsh
 
-awk -F',' 'NR>1 { sum += $3 } END { print sum }' /Users/bevan/Timesheets/2025/07-July/Jira-Import-W28-2025-07-08.csv
+#. awk -F',' 'NR>1 { sum += $3 } END { print sum }' /Users/bevan/Timesheets/2025/07-July/Jira-Import-W28-2025-07-08.csv
+
+   # @TODO jira issue list -q "type = 'Service Request' AND summary ~ '- Meetings'" --csv > $MEETING_FILE
+
+# MEETING_FILE="/Users/bholman/dotfiles/sd/usr/local/bin/meeting.csv"
+
+# [[ -z $(find "$MEETING_FILE" -mtime -1 2>/dev/null) ]]; jira issue list -q "type = 'Service Request' AND status = 'Resolved' AND summary ~ '- Meetings' AND labels ~ 'meetings' AND reporter = 'support@doghouse.agency'" --csv > $MEETING_FILE
+
+# declare -A client_meeting
+
+# {
+#     read  # Skip first row
+#     while IFS=',' read -r TYPE KEY SUMMARY STATUS; do
+#         client_prefix="${SUMMARY/ \– Meetings/}"
+#         client_meeting["${client_prefix}"]="${KEY}"
+# echo "client_meeting['${client_prefix}']='${KEY}'"
+#     done
+# } < $MEETING_FILE
+
+# awk -F, '
+#   {
+#     split($2, t, ":");  # Adjust $2 if time is in a different column
+#     total_minutes += t[1] * 60 + t[2];
+#   }
+#   END {
+#     hours = int(total_minutes / 60);
+#     minutes = total_minutes % 60;
+#     printf "Total Time: %02d:%02d\n", hours, minutes;
+#   }
+# ' *.csv
+
+
+# dd=$(date +%a);        # Mon
+# fd=$(date +%Y-%m-%d);  # 2019-06-28
+# md=$(date +%m-%B);     # 06-June
+# yd=$(date +%Y);        # 2019
+# #wd=$(date +%U);       # W15
+# wd=$((10#$(date +%U) + 1))
+
+# history_root="/Users/${USER}/Documents/History";
+# templatefile="${history_root}/default.log";
+# mdfile="${history_root}/${yd}/${md}/${fd}.md";
+
+# mkdir -p "${history_root}/${yd}/${md}";
+
+# if [ ! -f "${mdfile}" ]; then
+#     touch "${mdfile}";
+#     chmod 777 "${mdfile}";
+#     cat "$templatefile" > "$mdfile";
+#     current_date=$(date "+%Y-%b-%d")
+#     current_day=$(date "+%A")
+#     week_number=$(date +%U)
+#     week_number=$((week_number + 1))
+#     formatted_week=$(printf "%02d" $week_number)
+#     sed -i '' "s/yyyy-mmm-dd/$current_date/g" "$mdfile"
+#     sed -i '' "s/ddd/$current_day/g" "$mdfile"
+#     sed -i '' "s/www/$formatted_week/g" "$mdfile"
+    
+# fi
+# MD_FILE="${mdfile}"
+
+# timesheet_root="/Users/${USER}/Timesheets";
+# templatefile="${history_root}/timesheet.csv";
+# logfile="${timesheet_root}/${yd}/${md}/Jira-Import-W${wd}-${fd}.csv";
+# logdir="${timesheet_root}/${yd}/${md}";
+
+# # Get current week's Monday to Friday dates
+# dates=()
+# for day in mon tue wed thu fri; do
+#   dates+=("${timesheet_root}/${yd}/${md}/Jira-Import-W${wd}-${fd}.csv")
+# done
+
+# # Sum all matching files
+# weekly_sum=0
+# for file in $dates; do
+#   [[ -f "$file" ]] || continue
+#   sum=$(awk -F',' 'NR > 1 { sum += $3 } END { print sum }' ${file})
+#   (( weekly_sum += sum ))
+# done
+
+# weekly_sum_printed=$(echo "scale=2; $weekly_sum" | bc)
+# weekly_saved_time=$(echo "scale=2; ${weekly_sum_printed}" | bc)
+# printf "Weekly Saved time:  %.2f\n" "$weekly_saved_time" 
+# printf "Ruddr:  %.2f\n" "$ruddr_printed" 
+# cprint blue "---------------------------------------------------------------------------------------------------------------"
+
+# catchup_time=$(echo "scale=2; 7.60 - ${ruddr_printed} - ${sum_printed}" | bc)
+
+
+# # Output total time
+# printf "Total Time: %02d:%02d\n" $((weekly_sum / 60)) $((total_minutes % 60))
+
+
+# DATE_FORMAT="+%a"
+
+# # Loop for 5 days (i=0 for Monday through i=4 for Friday)
+# for i in {0..4}; do
+#     # -v-mon: moves the date back to the most recent Monday (or today if it is Monday)
+#     # -v+"$i"d: moves the date forward by $i days (Mon, Tue, Wed, Thu, Fri)
+#     CURRENT_DATE=$(date -v-mon -v+"$i"d "$DATE_FORMAT")
+    
+#     echo "Processing date: $CURRENT_DATE"
+#     # Example usage: some_command --date "$CURRENT_DATE"
+# done
+
+#   this_day=$(date -v-mon -v+"$1"d "+%a")
+
+#   echo "${this_day}"
+
+
+function getlogfilefunction() {
+
+  LOG_FILE="sdfsdf";
+
+  what_day="0"
+  if [ "$1" != "" ]; then
+    what_day="${1}"
+  fi
+
+
+echo "what day ${what_day}"
+   fd=$(date -v-"${what_day}"d "+%Y-%m-%d")
+   md=$(date -v-"${what_day}"d "+%m-%B")
+   yd=$(date -v-"${what_day}"d "+%Y")
+   wd=$((10#$(date +%U) + 1))
+
+   # fd=$(date -v-mon -v+"${what_day}"d "+%Y-%m-%d")
+   # md=$(date -v-mon -v+"${what_day}"d "+%m-%B")
+   # yd=$(date -v-mon -v+"${what_day{}"d "+%Y")
+   # wd=$((10#$(date +%U) + 1))
+
+#   fd=$(date +%Y-%m-%d); # 2019-06-28
+#   md=$(date +%m-%B);    # 06-June
+#   yd=$(date +%Y);       # 2019
+#   wd=$((10#$(date +%U) + 1))
+
+  LOG_FILE="/Users/${USER}/Timesheets/${yd}/${md}/Jira-Import-W${wd}-${fd}.csv";
+
+  echo  "${LOG_FILE}"
+}
+alias getlogfile=getlogfilefunction
+
+
+function hasdupfunction() {
+
+  today_file=$(getlogfile "$1")
+      echo "$today_file"
+exit
+  output=$(tail -n +2 ${today_file} | grep -v '•' | cut -d',' -f1 | sort | uniq -c | sort -nr | grep -v '1 ')
+
+   if [[ -z "$output" ]]; then
+      echo "Therer are no duplicat entries. Hazaar!!!!"
+   else
+      echo "$output"
+   fi
+
+}
+alias hasdup=hasdupfunction
+
+
+hasdup

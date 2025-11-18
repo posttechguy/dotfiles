@@ -9,7 +9,7 @@ fi
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH="/Users/bevan/.oh-my-zsh"
+export ZSH="/Users/bholman/.oh-my-zsh"
 
 HISTFILE="$HOME/.zsh_history"
 HISTSIZE=10000000
@@ -125,5 +125,5 @@ export COMPOSER_MEMORY_LIMIT=-1a
 
 source ~/dotfiles/zsh/.zsh_aliases
 
-export PATH="/Users/bevan/.lando/bin:$PATH"; #landopath
+export PATH="/Users/bholman/.lando/bin:/Users/bholman/dotfiles/sd/usr/local/bin$PATH"; #landopath
 

@@ -8,13 +8,14 @@ local config = wezterm.config_builder()
 config.color_scheme = "iceberg-dark"
 
 config.font = wezterm.font("MesloLGS Nerd Font Mono")
-config.font_size = 13
+config.font_size = 14
 
 config.enable_tab_bar = true
 
 config.window_decorations = "TITLE | RESIZE"
-config.window_background_opacity = 0.70
-config.macos_window_background_blur = 10
+config.window_background_opacity = 0.30
+config.macos_window_background_blur = 20
+config.enable_scroll_bar = true
 
 local act = wezterm.action
 
@@ -37,3 +38,4 @@ config.keys = {
 
 -- and finally, return the configuration to wezterm
 return config
+
