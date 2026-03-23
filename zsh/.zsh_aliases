@@ -1,5 +1,7 @@
 # ZSH Aliases
-SITES_DIRECTORY="/Users/bevan/Sites"
+SITES_DIRECTORY="/home/bevan/Sites"
+
+alias www='$SITES_DIRECTORY'
 
 source ~/dotfiles/zsh/.zsh_lagoon
 
@@ -9,7 +11,7 @@ build_fmenu() {
   LSSHMENU=(
     fzf
     --header="$title"
-    --layout=reverse
+    --layout=reverse    
     --exact
     --border=bold
     --border=rounded
@@ -44,7 +46,6 @@ cprint() {
   echo "\033[${code}m$*\033[0m"
 }
 
-
 alias please='sudo'
 alias screenshots='defaults write com.apple.screencapture location ~/Screenshots/'
 alias flushdns='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
@@ -55,18 +56,16 @@ alias mbash='more ~/.zshrc'
 alias dot='cd ~/dotfiles'
 alias evim='nvim ~/.vimrc'
 alias python='python3'
-alias rsync='/usr/local/bin/rsync'
 alias hist='history'
 alias aliases='alias | grep $1'
-alias lnado='lando'
-alias dumps='/Users/bevan/Dumps && ll'
+alias dumps='/home/bevan/Dumps && ll'
 alias CodeDir=' ~/Code && ll'
 alias Sites='~/Sites/ && ll'
 alias Devkits='~/Devkits/ && ll'
 alias clients='~/Documents/clients'
 alias sublpackages='subl /Users/bevan/Library/Application\ Support/Sublime\ Text\ 3/Packages/Paste\ Without\ NewLines'
-alias sshconfig='subl /Users/bevan/.ssh/config'
-alias sshknown='subl /Users/bevan/.ssh/known_hosts'
+alias sshconfig='subl /home/bevan/.ssh/config'
+alias sshknown='subl /home/bevan/.ssh/known_hosts'
 alias hosts='subl /etc/hosts'
 alias phps='/Applications/PhpStorm.app/Contents/MacOS/phpstorm'
 alias asdasdasdasd='sed '1,$1d' $2 > $3'
@@ -77,7 +76,7 @@ alias rmddirs='rm -rf modules profiles sites themes'
 alias findd='find . -type d -name $1'
 alias eject='diskutil unmount  disk2s1'
 alias c='codium'
-alias cli='/Users/bevan/Clients'
+alias cli='/home/bevan/Clients'
 alias sdbash='cd ~/dotfiles/sd && codium .'
 
 function validcertfunc() {
@@ -157,7 +156,6 @@ alias dss='/usr/local/bin/docker-sync start'
 alias dsd='/usr/local/bin/docker-sync stop'
 alias dex='/usr/local/bin/docker ps --filter "status=exited"'
 
-
 function dddbfunction() {
 
   SEARCH_CONTAINER=`echo "$1"`
@@ -218,13 +216,6 @@ function gzfunc() {
 }
 alias gz=gzfunc
 
-function reportingfunc() {
-  cd /Users/bevan/Documents/Reporting
-  find . -type f -exec sed -i -e "s/$1/$2/g" {} \;
-  rm *-e
-}
-alias rep=reportingfunc
-
 alias gz='gzip'
 alias untar='tar -xvf'
 alias untargz='tar -xzvf'
@@ -249,8 +240,6 @@ alias zippass='zip -er $2 $1'
 # cd /var/www &&
 # tar czf ~/www_backups/$(date +%Y%m%d-%H%M%S).tar.gz .
 # This will create a file named something like 20120902-185558.tar.gz.
-
-
 
 alias staging='git fetch origin staging && git checkout staging && git reset --hard remotes/origin/staging && git pull origin staging'
 alias production='git checkout production'
@@ -358,8 +347,6 @@ function cleangitfunction() {
 alias cleangit=cleangitfunction
 
 alias lush='php artisan '
-alias valeterror='tail -f /Users/bevan/.config/valet/Log/nginx-error.log'
-# alias valetnginxconf='vim /usr/local/etc/nginx/nginx.conf'
 
 function llogfunction() {
   dd=$(date -v -0d '+%d');
@@ -374,14 +361,6 @@ function routelistfunction {
   php artisan route:list | grep -E '\\$1|-|Action'
 }
 alias routelist=routelistfunction
-
-function washsqlfunction {
-    sed -i -e 's/https://www\.$1\.com\.au/http://www\.$1\.com\.au/g' /Users/bevan/dumps/$2
-    sed -i -e 's/https://$1\.com\.au/http://www\.$1\.com\.au/g' /Users/bevan/dumps/$2
-    sed -i -e 's/www\.$1\.com\.au/$1\.dhbox\.dev/g' /Users/bevan/dumps/$2
-    sed -i -e 's/$1\.com\.au/$1\.dhbox\.dev/g' /Users/bevan/dumps/$2
-}
-alias washsql=washsqlfunction
 
 function awskeysfunction() {
     openssl genrsa 2048 >  ~/.ssh/$1.pem
@@ -399,8 +378,6 @@ find . -type f -mtime +$2 -name '$1' -execdir rm -- {} \;
 }
 alias rmallfilesolderthan=rmallfilesolderthanfunction
 
-alias googledict='subl /Users/bevan/Library/Spelling/LocalDictionary'
-
 #cp -R ../benara.old/media/ media/
 
 #if [ -f $(brew --prefix)/etc/bash_completion ]; then
@@ -416,15 +393,13 @@ function mkcdirfunction ()
 }
 alias mkcdir=mkcdirfunction
 
-
-
 function inittimefunction() {
 
     # dd=$(date -v -$1d +%d/%m/%Y); # 10/31/2019
     # fd=$(date -v -$1d +%Y-%m-%d); # 2019-06-28
     # md=$(date -v -$1d +%m-%B);    # 06-June
     # yd=$(date -v -$1d +%Y);       # 2019
-    # history_root="/Users/bevan/Documents/History";
+    # history_root="/home/bevan/Documents/History";
     # templatefile="$history_root/template.log";
     # logfile="$history_root/$yd/$md/$fd.csv";
 
@@ -446,7 +421,7 @@ function inittimefunction() {
     #wd=$(date +%U);       # W15
     wd=$((10#$(date +%U) + 1))
 
-    history_root="/Users/${USER}/Documents/History";
+    history_root="/home/${USER}/Documents/History";
     templatefile="${history_root}/default.log";
     mdfile="${history_root}/${yd}/${md}/${fd}.md";
 
@@ -468,7 +443,7 @@ function inittimefunction() {
     fi
     MD_FILE="${mdfile}"
 
-    timesheet_root="/Users/${USER}/Timesheets";
+    timesheet_root="/home/${USER}/Timesheets";
     templatefile="${history_root}/timesheet.csv";
     logfile="${timesheet_root}/${yd}/${md}/Jira-Import-W${wd}-${fd}.csv";
 
@@ -519,7 +494,7 @@ echo $DAY_INTERVAL;
     # fd=$(date -v -$DAY_INTERVAL +%Y-%m-%d); # 2019-06-28
     # md=$(date -v -$DAY_INTERVAL +%m-%B);    # 06-June
     # yd=$(date -v -$DAY_INTERVAL +%Y);       # 2019
-    # history_root="/Users/bevan/Documents/History";
+    # history_root="/home/bevan/Documents/History";
     # logfile="$history_root/$yd/$md/$fd.csv";
 
     # if [ ! -d "$history_root/$yd/$md" ]; then
@@ -534,7 +509,7 @@ echo $DAY_INTERVAL;
     # echo $dd;
     # echo $logfile;
 
-    # history -E | sort -k3,3 -k2 | grep "2025-07-24" >> /Users/bevan/Documents/History/2025/07-July/2025-07-24.md
+    # history -E | sort -k3,3 -k2 | grep "2025-07-24" >> /home/bevan/Documents/History/2025/07-July/2025-07-24.md
     # history -E | sort -k3,3 -k2 | grep "$dd" >> "$logfile";
 }
 alias gethist=gethistoryfunction
@@ -571,7 +546,7 @@ export PATH
 alias wifipassword='security find-generic-password -ga "doghouse" |grep "password:"'
 
 # BEGIN SNIPPET: Platform.sh CLI configuration
-HOME=${HOME:-'/Users/bevan'}
+HOME=${HOME:-'/home/bevan'}
 export PATH="$HOME/"'.platformsh/bin':"$PATH"
 if [ -f "$HOME/"'.platformsh/shell-config.rc' ]; then . "$HOME/"'.platformsh/shell-config.rc'; fi # END SNIPPET
 export PATH="/usr/local/opt/php/bin:$PATH"
@@ -1076,11 +1051,7 @@ export PATH="/opt/homebrew/opt/php@8.3/sbin:$PATH"
 
 # brew link --force --overwrite php@8.2
 # brew services start php@8.2
-export PATH="/usr/local/opt/php/bin:$PATH"
-export PATH="/usr/local/opt/php/sbin:$PATH"
-export PATH="/Users/bevan/dotfiles/sd/usr/local/bin:$PATH"
-export PATH="/Applications/VSCodium.app/Contents/Resources/app/bin:$PATH"
-export XDEBUG_SESSION=VSCODIUM
+export PATH="/home/bevan/dotfiles/sd/usr/local/bin:$PATH"
 
 GOVCMS_TOKEN='glpat-etMT1VZumyeB6G99u-4T'
 #echo "$GOVCMS_TOKEN" | docker login gitlab-registry-production.govcms.amazee.io -u bevan.holman --password-stdin
@@ -1091,9 +1062,6 @@ export NVM_DIR="$HOME/.nvm"
   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
   [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
 
-eval "$(/Users/bevan/.lando/bin/lando shellenv)"
-
-
 # RUBY_CFLAGS="-Wno-error=implicit-function-declaration"
 #eval "$(fastly --completion-script-zsh)"
 # brew services restart ph
@@ -1103,12 +1071,5 @@ eval "$(/Users/bevan/.lando/bin/lando shellenv)"
 #export PATH="/usr/local/bin:$PATH"
 #brew services start php
 
-
-
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
-
-
-
-
-
 
