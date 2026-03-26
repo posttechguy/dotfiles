@@ -384,6 +384,11 @@ comms=("with no one" "with the team" "with the client" "with the team and client
 #  SUPPORTOPS-75
 
 client="DISTCORE"
+
+if [[ "$ticket" =~ ^[0-9]+$ ]]; then
+  ticket="SUPPORTDESK-$ticket"
+fi
+
 if ! echo "${ticket}" | grep -qi "DISTCORE-"; then
 
     # Sort clients alphabetically
